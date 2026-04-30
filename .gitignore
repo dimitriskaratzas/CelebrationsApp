@@ -1,0 +1,23 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.nupkg
+*.snupkg
+appsettings.Development.json
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+.env
+.env.local
+
+# Worktrees
+.worktrees/
+
+# OS
+.DS_Store
+Thumbs.db
