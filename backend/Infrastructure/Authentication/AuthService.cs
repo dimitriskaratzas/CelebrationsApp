@@ -71,6 +71,9 @@ public partial class AuthService(
         var claimResult = user.Claim(request.Email, passwordHasher.Hash(request.Password));
         if (claimResult.IsFailure) return Result.Failure<AuthResult>(claimResult.Error);
 
+        // TODO(Phase 1.1): Wrap claim + revoke + issue in a single transaction (or single SaveChanges).
+        // Today these are two DB transactions; if the process dies between them, old anonymous refresh
+        // tokens remain active in the DB until they expire.
         await userRepo.SaveChangesAsync(ct);
 
         // Revoke all refresh tokens issued under the anonymous identity, and issue
@@ -109,6 +112,8 @@ public partial class AuthService(
 
         // Rotate: revoke the presented refresh and issue a new pair. If the same
         // refresh is reused after rotation, the IsActive check above will reject it.
+        // TODO(Phase 1.1): Make rotation race-safe (e.g., row version or SELECT ... FOR UPDATE).
+        // Two concurrent refreshes could each pass the IsActive check before either persists revocation.
         existing.Revoke();
         var tokens = await IssueTokensAsync(user, ct);
         return Result.Success(new RefreshResult(
