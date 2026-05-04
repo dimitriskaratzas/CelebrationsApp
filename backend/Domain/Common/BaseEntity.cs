@@ -6,6 +6,13 @@ public abstract class BaseEntity
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; private set; }
 
+    protected BaseEntity() { }
+
+    protected BaseEntity(Guid id)
+    {
+        Id = id;
+    }
+
     protected void SetUpdated()
     {
         UpdatedAt = DateTime.UtcNow;
