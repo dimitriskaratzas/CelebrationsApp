@@ -65,6 +65,24 @@ dotnet test
 | POST | `/api/auth/forgot-password` | none | Initiate password reset |
 | POST | `/api/auth/reset-password` | none | Complete password reset |
 
+## Favorites Endpoints
+
+All require a JWT (anonymous or registered both work). Scoped to the authenticated user via the JWT's `sub` claim.
+
+| Method | Path | Body | Notes |
+| --- | --- | --- | --- |
+| GET | `/api/favorites?since={iso8601}` | — | Returns `{ favorites, deletions, syncedAt }`. `since` optional; omit for full sync. |
+| POST | `/api/favorites` | `{ id, displayName, nameDayKey?, birthdayDate?, relationship? }` | `id` is a client-generated UUID. Idempotent on `(userId, id)`. 402 when free-tier cap hit. 409 if `id` already used by another user. |
+| PUT | `/api/favorites/{id}` | `{ displayName, nameDayKey?, birthdayDate?, relationship? }` | Full replace. 404 if not found / not owned / already deleted. |
+| DELETE | `/api/favorites/{id}` | — | Soft delete (tombstone). Visible in subsequent `GET ?since=` responses' `deletions` array. |
+
+`relationship` must be one of: `parent | child | sibling | spouse | grandparent | friend | colleague | other` (or null).
+
+`nameDayKey` is an ASCII slug matching `^[a-z0-9-]{1,64}$`, or null.
+
+Free tier: capped at the value of `Premium:FreeFavoritesCap` in `appsettings.json` (default `10`).
+Cap is enforced server-side at `POST` via `IEntitlementRepository`. In Plan 2 the entitlement check is stubbed to always return "free"; a future plan replaces the stub with an Adapty-backed implementation.
+
 ## Email service
 
 Plan 1 ships `StubEmailService`, which **logs reset links to the console** instead of sending email. A real provider (Brevo/SendGrid) is integrated in Phase 1.1 by adding a class implementing `IEmailService` and replacing the registration in `DependencyInjection.cs`.
