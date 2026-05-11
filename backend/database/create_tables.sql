@@ -1,5 +1,7 @@
--- Celebrations Database Schema — Phase 1 (auth foundations)
+-- Celebrations Database Schema
+-- Phase 1 (auth foundations) + Phase 2 (favorites sync).
 -- Drop all tables for clean recreation (no production data yet).
+DROP TABLE IF EXISTS "Favorites" CASCADE;
 DROP TABLE IF EXISTS "PasswordResetTokens" CASCADE;
 DROP TABLE IF EXISTS "RefreshTokens" CASCADE;
 DROP TABLE IF EXISTS "Users" CASCADE;
@@ -55,3 +57,25 @@ CREATE TABLE "PasswordResetTokens" (
 
 CREATE UNIQUE INDEX "IX_PasswordResetTokens_TokenHash" ON "PasswordResetTokens" ("TokenHash");
 CREATE INDEX "IX_PasswordResetTokens_UserId" ON "PasswordResetTokens" ("UserId");
+
+-- ============================================================
+-- FAVORITES (sync target; client-generated UUIDs; soft-delete tombstones)
+-- ============================================================
+CREATE TABLE "Favorites" (
+    "Id"            UUID PRIMARY KEY,
+    "UserId"        UUID            NOT NULL REFERENCES "Users"("Id") ON DELETE CASCADE,
+    "DisplayName"   VARCHAR(100)    NOT NULL,
+    "NameDayKey"    VARCHAR(64),
+    "BirthdayDate"  DATE,
+    "Relationship"  VARCHAR(32),
+    "CreatedAt"     TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+    "UpdatedAt"     TIMESTAMPTZ,
+    "DeletedAt"     TIMESTAMPTZ
+);
+
+-- Supports incremental sync via ?since= queries (filter by user, sort by update time).
+CREATE INDEX "IX_Favorites_UserId_UpdatedAt" ON "Favorites" ("UserId", "UpdatedAt");
+
+-- Partial index for the free-tier cap check: COUNT(*) WHERE UserId = X AND DeletedAt IS NULL.
+-- Only indexes live rows, keeping it small and fast.
+CREATE INDEX "IX_Favorites_UserId_Live" ON "Favorites" ("UserId") WHERE "DeletedAt" IS NULL;

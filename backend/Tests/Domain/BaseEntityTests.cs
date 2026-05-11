@@ -25,4 +25,17 @@ public class BaseEntityTests
         // Two new entities have different Ids
         a.Equals(b).Should().BeFalse();
     }
+
+    [Fact]
+    public void Constructor_WithExplicitId_UsesProvidedId()
+    {
+        var explicitId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        var entity = new TestEntityWithExplicitId(explicitId);
+        entity.Id.Should().Be(explicitId);
+    }
+
+    private class TestEntityWithExplicitId : BaseEntity
+    {
+        public TestEntityWithExplicitId(Guid id) : base(id) { }
+    }
 }
