@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { client } from '@/lib/api/client';
+import { toAppError } from '@/lib/api/error';
 import { getDb } from '@/lib/db';
 
 export default function TodayScreen() {
   const [tables, setTables] = useState<string[] | null>(null);
+  const [health, setHealth] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -15,8 +18,11 @@ export default function TodayScreen() {
           "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
         );
         setTables(rows.map((r) => r.name));
+
+        const resp = await client.get<{ status: string }>('/health');
+        setHealth(resp.data.status);
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(toAppError(e).message);
       }
     })();
   }, []);
@@ -37,6 +43,8 @@ export default function TodayScreen() {
       ) : (
         <Text style={styles.subtitle}>Loading…</Text>
       )}
+      <Text style={styles.debug}>API /health (T6 check):</Text>
+      <Text style={styles.tableRow}>{health ?? '…'}</Text>
     </View>
   );
 }
