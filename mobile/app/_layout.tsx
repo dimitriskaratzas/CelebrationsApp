@@ -26,6 +26,8 @@ function RootGate() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="favorite/new" options={{ title: 'Νέο αγαπημένο' }} />
         <Stack.Screen name="favorite/[id]" options={{ title: 'Επεξεργασία' }} />
+        <Stack.Screen name="auth/sign-in" options={{ title: 'Σύνδεση' }} />
+        <Stack.Screen name="auth/register" options={{ title: 'Δημιουργία λογαριασμού' }} />
       </Stack>
     </SyncProvider>
   );
