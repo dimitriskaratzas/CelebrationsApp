@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -10,10 +10,13 @@ import {
   View,
 } from 'react-native';
 
+import { suggestByPrefix } from '@/features/today/namedays/catalog';
+
 import type { FavoriteInput } from '../db/favorites.repo';
 import { useNamedayMatch } from '../hooks/useNamedayMatch';
 
 import { BirthdayInput } from './BirthdayInput';
+import { NameAutocomplete } from './NameAutocomplete';
 import { NamedayConfirm, NO_NAMEDAY } from './NamedayConfirm';
 import { RelationshipPicker, relationshipLabel } from './RelationshipPicker';
 
@@ -44,6 +47,12 @@ export function FavoriteForm({ initial, saveLabel, onSubmit }: Props) {
 
   const match = useNamedayMatch(displayName);
   const namedayResolved = namedayKey !== null || match.kind === 'matched';
+
+  const suggestions = useMemo(() => {
+    if (namedayKey !== null) return [];
+    if (match.kind === 'matched') return [];
+    return suggestByPrefix(displayName, 5);
+  }, [displayName, namedayKey, match.kind]);
   const canSave =
     displayName.trim().length > 0 &&
     !saving &&
@@ -87,6 +96,13 @@ export function FavoriteForm({ initial, saveLabel, onSubmit }: Props) {
             placeholder="π.χ. Πατέρας, Γιώργος, …"
             maxLength={80}
             autoFocus={!initial}
+          />
+          <NameAutocomplete
+            suggestions={suggestions}
+            onPick={(entry) => {
+              setDisplayName(entry.primary_form);
+              setNamedayKey(entry.nameday_key);
+            }}
           />
         </View>
 

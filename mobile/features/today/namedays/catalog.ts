@@ -69,3 +69,22 @@ export function findByNormalized(normalized: string): NamedayEntry[] {
 export function findByKey(key: string): NamedayEntry | null {
   return CATALOG.find((e) => e.nameday_key === key) ?? null;
 }
+
+export function suggestByPrefix(input: string, limit = 5): NamedayEntry[] {
+  const normalized = normalize(input);
+  if (!normalized || normalized.length < 1) return [];
+
+  const seen = new Set<string>();
+  const out: NamedayEntry[] = [];
+
+  for (const entry of CATALOG) {
+    if (out.length >= limit) break;
+    if (seen.has(entry.nameday_key)) continue;
+    const hit = entry.all_forms_normalized.some((form) => form.startsWith(normalized));
+    if (hit) {
+      out.push(entry);
+      seen.add(entry.nameday_key);
+    }
+  }
+  return out;
+}
