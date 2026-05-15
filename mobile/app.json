@@ -40,6 +40,12 @@
     "runtimeVersion": {
       "policy": "appVersion"
     },
-    "owner": "dimkaratz"
+    "owner": "dimkaratz",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "25d56bcd-223e-49fe-98dd-6eaad3523842"
+      }
+    }
   }
 }
