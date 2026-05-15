@@ -1,15 +1,22 @@
+using System.Data;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using Application.Common;
 using Application.Common.Interfaces;
 using Application.DTOs;
 using Application.Mapping;
 using Domain.Common;
 using Domain.Entities;
+using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
+using Npgsql;
 
 namespace Infrastructure.Authentication;
 
 public partial class AuthService(
+    AppDbContext dbContext,
     IUserRepository userRepo,
     IRefreshTokenRepository refreshRepo,
     IPasswordResetTokenRepository resetRepo,
@@ -21,7 +28,8 @@ public partial class AuthService(
 {
     private readonly JwtSettings _jwt = jwtOptions.Value;
     private const string ResetDeepLinkBase = "celebrations://reset-password?token=";
-    private const string InvalidCredentials = "Λανθασμένο email ή κωδικός.";
+    private const string InvalidCredentialsMessage = "Λανθασμένο email ή κωδικός.";
+    private const string UniqueViolationSqlState = "23505";
 
     public async Task<Result<AuthResult>> CreateAnonymousAsync(CancellationToken ct = default)
     {
@@ -37,61 +45,82 @@ public partial class AuthService(
     public async Task<Result<AuthResult>> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
         var validation = ValidatePassword(request.Password);
-        if (validation.IsFailure) return Result.Failure<AuthResult>(validation.Error);
+        if (validation.IsFailure) return Result.Failure<AuthResult>(ErrorCodes.Validation, validation.Error);
 
+        // Fast path: most duplicates are caught here. Race-safe fallback is the 23505 catch below.
         if (await userRepo.ExistsWithEmailAsync(request.Email, ct))
-            return Result.Failure<AuthResult>("Υπάρχει ήδη λογαριασμός με αυτό το email.");
+            return Result.Failure<AuthResult>(ErrorCodes.EmailTaken, "Υπάρχει ήδη λογαριασμός με αυτό το email.");
 
         var userResult = User.CreateRegistered(request.Email);
-        if (userResult.IsFailure) return Result.Failure<AuthResult>(userResult.Error);
+        if (userResult.IsFailure) return Result.Failure<AuthResult>(ErrorCodes.Validation, userResult.Error);
 
         var user = userResult.Value!;
         user.SetPasswordHash(passwordHasher.Hash(request.Password));
 
-        await userRepo.AddAsync(user, ct);
-        await userRepo.SaveChangesAsync(ct);
+        await using IDbContextTransaction? tx =
+            await dbContext.Database.BeginTransactionIfRelationalAsync(ct);
+        try
+        {
+            await userRepo.AddAsync(user, ct);
+            await userRepo.SaveChangesAsync(ct);
 
-        var tokens = await IssueTokensAsync(user, ct);
-        return Result.Success(new AuthResult(
-            tokens.Access, tokens.Refresh, tokens.AccessExpiresAt, UserMapping.ToDto(user)));
+            var tokens = await IssueTokensAsync(user, ct);
+            await tx.CommitIfPresentAsync(ct);
+
+            return Result.Success(new AuthResult(
+                tokens.Access, tokens.Refresh, tokens.AccessExpiresAt, UserMapping.ToDto(user)));
+        }
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        {
+            await tx.RollbackIfPresentAsync(ct);
+            return Result.Failure<AuthResult>(ErrorCodes.EmailTaken, "Υπάρχει ήδη λογαριασμός με αυτό το email.");
+        }
     }
 
     public async Task<Result<AuthResult>> ClaimAnonymousAsync(Guid anonymousUserId, AnonymousClaimRequest request, CancellationToken ct = default)
     {
         var validation = ValidatePassword(request.Password);
-        if (validation.IsFailure) return Result.Failure<AuthResult>(validation.Error);
+        if (validation.IsFailure) return Result.Failure<AuthResult>(ErrorCodes.Validation, validation.Error);
 
         var user = await userRepo.GetByIdAsync(anonymousUserId, ct);
-        if (user is null) return Result.Failure<AuthResult>("Ο χρήστης δεν βρέθηκε.");
-        if (!user.IsAnonymous) return Result.Failure<AuthResult>("Ο χρήστης είναι ήδη εγγεγραμμένος.");
+        if (user is null) return Result.Failure<AuthResult>(ErrorCodes.UserNotFound, "Ο χρήστης δεν βρέθηκε.");
+        if (!user.IsAnonymous) return Result.Failure<AuthResult>(ErrorCodes.UserAlreadyRegistered, "Ο χρήστης είναι ήδη εγγεγραμμένος.");
 
+        // Fast path: race-safe fallback is the 23505 catch below.
         if (await userRepo.ExistsWithEmailAsync(request.Email, ct))
-            return Result.Failure<AuthResult>("Υπάρχει ήδη λογαριασμός με αυτό το email.");
+            return Result.Failure<AuthResult>(ErrorCodes.EmailTaken, "Υπάρχει ήδη λογαριασμός με αυτό το email.");
 
         var claimResult = user.Claim(request.Email, passwordHasher.Hash(request.Password));
-        if (claimResult.IsFailure) return Result.Failure<AuthResult>(claimResult.Error);
+        if (claimResult.IsFailure) return Result.Failure<AuthResult>(ErrorCodes.Validation, claimResult.Error);
 
-        // TODO(Phase 1.1): Wrap claim + revoke + issue in a single transaction (or single SaveChanges).
-        // Today these are two DB transactions; if the process dies between them, old anonymous refresh
-        // tokens remain active in the DB until they expire.
-        await userRepo.SaveChangesAsync(ct);
+        // Claim + revoke-old-tokens + issue-new-tokens must be atomic.
+        await using IDbContextTransaction? tx =
+            await dbContext.Database.BeginTransactionIfRelationalAsync(ct);
+        try
+        {
+            await userRepo.SaveChangesAsync(ct);
+            await refreshRepo.RevokeAllForUserAsync(user.Id, ct);
+            var tokens = await IssueTokensAsync(user, ct);
+            await tx.CommitIfPresentAsync(ct);
 
-        // Revoke all refresh tokens issued under the anonymous identity, and issue
-        // a fresh pair under the now-registered identity.
-        await refreshRepo.RevokeAllForUserAsync(user.Id, ct);
-        var tokens = await IssueTokensAsync(user, ct);
-        return Result.Success(new AuthResult(
-            tokens.Access, tokens.Refresh, tokens.AccessExpiresAt, UserMapping.ToDto(user)));
+            return Result.Success(new AuthResult(
+                tokens.Access, tokens.Refresh, tokens.AccessExpiresAt, UserMapping.ToDto(user)));
+        }
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        {
+            await tx.RollbackIfPresentAsync(ct);
+            return Result.Failure<AuthResult>(ErrorCodes.EmailTaken, "Υπάρχει ήδη λογαριασμός με αυτό το email.");
+        }
     }
 
     public async Task<Result<AuthResult>> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
         var user = await userRepo.GetByEmailAsync(request.Email, ct);
         if (user is null || string.IsNullOrEmpty(user.PasswordHash))
-            return Result.Failure<AuthResult>(InvalidCredentials);
+            return Result.Failure<AuthResult>(ErrorCodes.InvalidCredentials, InvalidCredentialsMessage);
 
         if (!passwordHasher.Verify(request.Password, user.PasswordHash))
-            return Result.Failure<AuthResult>(InvalidCredentials);
+            return Result.Failure<AuthResult>(ErrorCodes.InvalidCredentials, InvalidCredentialsMessage);
 
         var tokens = await IssueTokensAsync(user, ct);
         return Result.Success(new AuthResult(
@@ -101,23 +130,62 @@ public partial class AuthService(
     public async Task<Result<RefreshResult>> RefreshAsync(RefreshRequest request, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
-            return Result.Failure<RefreshResult>("Refresh token is required.");
+            return Result.Failure<RefreshResult>(ErrorCodes.InvalidRefreshToken, "Refresh token is required.");
 
-        var existing = await refreshRepo.GetByTokenHashAsync(Hash(request.RefreshToken), ct);
-        if (existing is null || !existing.IsActive)
-            return Result.Failure<RefreshResult>("Invalid or expired refresh token.");
+        var tokenHash = Hash(request.RefreshToken);
+        var existing = await refreshRepo.GetByTokenHashAsync(tokenHash, ct);
+        if (existing is null)
+            return Result.Failure<RefreshResult>(ErrorCodes.InvalidRefreshToken, "Invalid or expired refresh token.");
+
+        // Race-safe revoke: conditional UPDATE that wins exactly one concurrent attempt.
+        // If RowCount is 0, either (a) the token has already been revoked / expired (normal expired
+        // session — return generic invalid) or (b) someone else just rotated it (token reuse — revoke
+        // the entire user's refresh family).
+        var now = DateTime.UtcNow;
+        int revokedRows;
+        if (dbContext.Database.IsRelational())
+        {
+            revokedRows = await dbContext.RefreshTokens
+                .Where(t => t.Id == existing.Id && t.RevokedAt == null && t.ExpiresAt > now)
+                .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, now), ct);
+        }
+        else
+        {
+            // Non-relational test path. Same semantic, not race-safe — relies on the IsActive check.
+            if (existing.IsActive)
+            {
+                existing.Revoke();
+                await refreshRepo.SaveChangesAsync(ct);
+                revokedRows = 1;
+            }
+            else
+            {
+                revokedRows = 0;
+            }
+        }
+
+        if (revokedRows == 0)
+        {
+            // The snapshot we loaded earlier may be stale (another concurrent rotation just won
+            // the conditional UPDATE we lost). Re-read to see the *current* row state.
+            // - RevokedAt set now → either we lost a concurrent race (reuse) or this token was
+            //   already revoked when we first loaded it (also reuse). Either way: revoke family.
+            // - RevokedAt still null → the row is unrevoked but expired (or never existed).
+            var fresh = await refreshRepo.GetByTokenHashAsync(tokenHash, ct);
+            if (fresh?.RevokedAt is not null)
+            {
+                await refreshRepo.RevokeAllForUserAsync(existing.UserId, ct);
+                return Result.Failure<RefreshResult>(ErrorCodes.RefreshTokenReused,
+                    "Refresh token reuse detected. All sessions revoked.");
+            }
+            return Result.Failure<RefreshResult>(ErrorCodes.InvalidRefreshToken, "Invalid or expired refresh token.");
+        }
 
         var user = await userRepo.GetByIdAsync(existing.UserId, ct);
-        if (user is null) return Result.Failure<RefreshResult>("User not found.");
+        if (user is null) return Result.Failure<RefreshResult>(ErrorCodes.UserNotFound, "User not found.");
 
-        // Rotate: revoke the presented refresh and issue a new pair. If the same
-        // refresh is reused after rotation, the IsActive check above will reject it.
-        // TODO(Phase 1.1): Make rotation race-safe (e.g., row version or SELECT ... FOR UPDATE).
-        // Two concurrent refreshes could each pass the IsActive check before either persists revocation.
-        existing.Revoke();
         var tokens = await IssueTokensAsync(user, ct);
-        return Result.Success(new RefreshResult(
-            tokens.Access, tokens.Refresh, tokens.AccessExpiresAt));
+        return Result.Success(new RefreshResult(tokens.Access, tokens.Refresh, tokens.AccessExpiresAt));
     }
 
     public async Task<Result> LogoutAsync(LogoutRequest request, CancellationToken ct = default)
@@ -159,23 +227,26 @@ public partial class AuthService(
     public async Task<Result> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(request.Token))
-            return Result.Failure("Μη έγκυρος σύνδεσμος επαναφοράς.");
+            return Result.Failure(ErrorCodes.InvalidResetToken, "Μη έγκυρος σύνδεσμος επαναφοράς.");
 
         var validation = ValidatePassword(request.NewPassword);
-        if (validation.IsFailure) return validation;
+        if (validation.IsFailure) return Result.Failure(ErrorCodes.Validation, validation.Error);
 
         var entity = await resetRepo.GetByTokenHashAsync(Hash(request.Token), ct);
         if (entity is null || !entity.IsActive)
-            return Result.Failure("Ο σύνδεσμος επαναφοράς δεν είναι έγκυρος ή έχει λήξει.");
+            return Result.Failure(ErrorCodes.InvalidResetToken, "Ο σύνδεσμος επαναφοράς δεν είναι έγκυρος ή έχει λήξει.");
 
         var user = await userRepo.GetByIdAsync(entity.UserId, ct);
-        if (user is null) return Result.Failure("Ο χρήστης δεν βρέθηκε.");
+        if (user is null) return Result.Failure(ErrorCodes.UserNotFound, "Ο χρήστης δεν βρέθηκε.");
 
+        await using IDbContextTransaction? tx =
+            await dbContext.Database.BeginTransactionIfRelationalAsync(ct);
         user.SetPasswordHash(passwordHasher.Hash(request.NewPassword));
         entity.MarkUsed();
         await refreshRepo.RevokeAllForUserAsync(user.Id, ct);
+        await dbContext.SaveChangesAsync(ct);
+        await tx.CommitIfPresentAsync(ct);
 
-        await userRepo.SaveChangesAsync(ct);
         return Result.Success();
     }
 
@@ -194,6 +265,9 @@ public partial class AuthService(
 
         return (accessToken, refreshRaw, accessExpires);
     }
+
+    private static bool IsUniqueViolation(DbUpdateException ex) =>
+        ex.InnerException is PostgresException pg && pg.SqlState == UniqueViolationSqlState;
 
     private static string GenerateSecureToken() =>
         Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));

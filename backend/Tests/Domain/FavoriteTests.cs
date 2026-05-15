@@ -44,7 +44,6 @@ public class FavoriteTests
     }
 
     [Theory]
-    [InlineData("Friend")]              // wrong case
     [InlineData("φίλος")]               // Greek
     [InlineData("bestie")]              // not in enum
     [InlineData("")]                    // empty
@@ -52,6 +51,17 @@ public class FavoriteTests
     {
         var result = Favorite.Create(AnyId, AnyUserId, "Maria", null, null, relationship);
         result.IsFailure.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("Friend", "friend")]
+    [InlineData("PARENT", "parent")]
+    [InlineData("Sibling", "sibling")]
+    public void Create_WithMixedCaseRelationship_NormalizesToLower(string input, string expected)
+    {
+        var result = Favorite.Create(AnyId, AnyUserId, "Maria", null, null, input);
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Relationship.Should().Be(expected);
     }
 
     [Theory]

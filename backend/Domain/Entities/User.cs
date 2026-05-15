@@ -36,6 +36,8 @@ public class User : BaseEntity
 
     // Promotes an anonymous user to a registered user during the "claim" flow:
     // user opens app anonymously, later registers with email + password.
+    // `passwordHash` must be a hasher-produced value; an empty hash here is a programmer error
+    // (same contract as SetPasswordHash) and throws rather than returning a Result.
     public Result Claim(string email, string passwordHash)
     {
         if (!IsAnonymous)
@@ -46,7 +48,7 @@ public class User : BaseEntity
             return Result.Failure(emailResult.Error);
 
         if (string.IsNullOrWhiteSpace(passwordHash))
-            return Result.Failure("Password hash is required.");
+            throw new ArgumentException("Password hash cannot be empty.", nameof(passwordHash));
 
         Email = emailResult.Value!;
         PasswordHash = passwordHash;
@@ -55,6 +57,9 @@ public class User : BaseEntity
         return Result.Success();
     }
 
+    // Internal contract: `hash` must come from IPasswordHasher.Hash, never from user input.
+    // Throws on empty so a programming bug surfaces immediately rather than persisting a
+    // blank hash and breaking authentication for the user.
     public void SetPasswordHash(string hash)
     {
         if (string.IsNullOrWhiteSpace(hash))

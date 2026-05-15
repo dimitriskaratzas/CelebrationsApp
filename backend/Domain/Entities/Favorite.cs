@@ -5,7 +5,9 @@ namespace Domain.Entities;
 
 public partial class Favorite : BaseEntity
 {
-    private static readonly HashSet<string> AllowedRelationships = new(StringComparer.Ordinal)
+    // Stored lowercase per the API contract. The set is case-insensitive on validation so a
+    // client sending "Parent" by mistake is accepted (and normalized) rather than 400-ing.
+    private static readonly HashSet<string> AllowedRelationships = new(StringComparer.OrdinalIgnoreCase)
     {
         "parent", "child", "sibling", "spouse",
         "grandparent", "friend", "colleague", "other",
@@ -47,7 +49,7 @@ public partial class Favorite : BaseEntity
             displayName.Trim(),
             nameDayKey,
             birthdayDate,
-            relationship));
+            relationship?.ToLowerInvariant()));
     }
 
     public Result Update(string displayName, string? nameDayKey,
@@ -60,7 +62,7 @@ public partial class Favorite : BaseEntity
         DisplayName = displayName.Trim();
         NameDayKey = nameDayKey;
         BirthdayDate = birthdayDate;
-        Relationship = relationship;
+        Relationship = relationship?.ToLowerInvariant();
         SetUpdated();
         return Result.Success();
     }

@@ -12,9 +12,21 @@ public class RefreshTokenRepository(AppDbContext context) : BaseRepository<Refre
 
     public async Task RevokeAllForUserAsync(Guid userId, CancellationToken ct = default)
     {
+        var now = DateTime.UtcNow;
+        if (_context.Database.IsRelational())
+        {
+            // Single UPDATE — avoids loading every refresh token a user has ever had into memory.
+            await _dbSet
+                .Where(t => t.UserId == userId && t.RevokedAt == null)
+                .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, now), ct);
+            return;
+        }
+
+        // InMemory fallback (tests only).
         var tokens = await _dbSet
             .Where(t => t.UserId == userId && t.RevokedAt == null)
             .ToListAsync(ct);
         foreach (var t in tokens) t.Revoke();
+        await _context.SaveChangesAsync(ct);
     }
 }

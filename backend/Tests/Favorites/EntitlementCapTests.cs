@@ -1,4 +1,5 @@
 using Api.Controllers;
+using Application.Common;
 using Application.Common.Interfaces;
 using Application.DTOs;
 using Domain.Entities;
@@ -32,7 +33,7 @@ public class EntitlementCapTests
             .AddInMemoryCollection(new Dictionary<string, string?> { ["Premium:FreeFavoritesCap"] = cap.ToString() })
             .Build();
 
-        return (new FavoritesController(repo, ent.Object, current.Object, config), repo);
+        return (new FavoritesController(repo, ent.Object, current.Object, ctx, config), repo);
     }
 
     private static async Task SeedFavoritesAsync(FavoriteRepository repo, int liveCount, int deletedCount = 0)
@@ -76,7 +77,7 @@ public class EntitlementCapTests
     }
 
     [Fact]
-    public async Task FreeUser_AtCap_GetsPaymentRequired()
+    public async Task FreeUser_AtCap_GetsForbiddenWithCode()
     {
         var (ctl, repo) = Build(isPremium: false, cap: 10);
         await SeedFavoritesAsync(repo, liveCount: 10);
@@ -85,7 +86,9 @@ public class EntitlementCapTests
         var result = await ctl.Create(req, CancellationToken.None);
 
         var status = result.Result.Should().BeOfType<ObjectResult>().Subject;
-        status.StatusCode.Should().Be(402);
+        status.StatusCode.Should().Be(403);
+        var problem = status.Value.Should().BeOfType<ProblemDetails>().Subject;
+        problem.Extensions["code"].Should().Be(ErrorCodes.FreeTierCap);
     }
 
     [Fact]
@@ -98,7 +101,7 @@ public class EntitlementCapTests
         var req = new CreateFavoriteRequest(Guid.NewGuid(), "Eleventh", null, null, null);
         var result = await ctl.Create(req, CancellationToken.None);
 
-        ((ObjectResult)result.Result!).StatusCode.Should().Be(402);
+        ((ObjectResult)result.Result!).StatusCode.Should().Be(403);
     }
 
     [Fact]
@@ -124,8 +127,9 @@ public class EntitlementCapTests
         var result = await ctl.Create(req, CancellationToken.None);
 
         var status = (ObjectResult)result.Result!;
-        status.StatusCode.Should().Be(402);
-        var body = status.Value!.GetType().GetProperty("error")!.GetValue(status.Value)!.ToString();
-        body.Should().Contain("7");
+        status.StatusCode.Should().Be(403);
+        var problem = status.Value.Should().BeOfType<ProblemDetails>().Subject;
+        problem.Title.Should().Contain("7");
+        problem.Extensions["limit"].Should().Be(7);
     }
 }

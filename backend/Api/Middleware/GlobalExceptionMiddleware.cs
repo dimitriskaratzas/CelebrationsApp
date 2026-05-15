@@ -1,5 +1,7 @@
 using System.Text.Json;
+using Application.Common;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Api.Middleware;
@@ -18,15 +20,25 @@ public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExcep
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);
+            var traceId = context.TraceIdentifier;
+            logger.LogError(ex, "Unhandled exception {TraceId} for {Method} {Path}", traceId, context.Request.Method, context.Request.Path);
 
             if (context.Response.HasStarted) throw;
 
-            context.Response.ContentType = "application/json";
+            context.Response.Clear();
+            context.Response.ContentType = "application/problem+json";
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
-            var payload = JsonSerializer.Serialize(new { error = "Παρουσιάστηκε σφάλμα." });
-            await context.Response.WriteAsync(payload);
+            var problem = new ProblemDetails
+            {
+                Status = StatusCodes.Status500InternalServerError,
+                Title = "Παρουσιάστηκε σφάλμα.",
+                Type = "about:blank#INTERNAL_ERROR",
+            };
+            problem.Extensions["code"] = "INTERNAL_ERROR";
+            problem.Extensions["traceId"] = traceId;
+
+            await JsonSerializer.SerializeAsync(context.Response.Body, problem);
         }
     }
 }
