@@ -25,4 +25,5 @@ public record UpdateFavoriteRequest(
 public record FavoritesSyncResponse(
     IReadOnlyList<FavoriteDto> Favorites,
     IReadOnlyList<Guid> Deletions,
-    DateTime SyncedAt);
+    DateTime SyncedAt,
+    bool HasMore);

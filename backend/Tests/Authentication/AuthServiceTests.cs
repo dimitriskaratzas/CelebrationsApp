@@ -37,7 +37,7 @@ public class AuthServiceTests
         var rateLimiter = new PasswordResetRateLimiter();
 
         mocks = new Mocks { Email = emailMock };
-        return new AuthService(userRepo, refreshRepo, resetRepo, hasher, jwt, emailMock.Object, rateLimiter, jwtOpts);
+        return new AuthService(ctx, userRepo, refreshRepo, resetRepo, hasher, jwt, emailMock.Object, rateLimiter, jwtOpts);
     }
 
     private class Mocks { public Mock<IEmailService> Email { get; init; } = null!; }

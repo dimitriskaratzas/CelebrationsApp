@@ -40,7 +40,7 @@ public class FavoritesControllerTests
         };
         var config = new ConfigurationBuilder().AddInMemoryCollection(configValues).Build();
 
-        var controller = new FavoritesController(repo, entitlements.Object, currentUser.Object, config);
+        var controller = new FavoritesController(repo, entitlements.Object, currentUser.Object, ctx, config);
         return (controller, repo);
     }
 
@@ -93,18 +93,18 @@ public class FavoritesControllerTests
 
         var currentA = new Mock<ICurrentUser>();
         currentA.SetupGet(c => c.UserId).Returns(UserA);
-        var ctlA = new FavoritesController(sharedRepo, entitlements.Object, currentA.Object, config);
+        var ctlA = new FavoritesController(sharedRepo, entitlements.Object, currentA.Object, ctx, config);
 
         var currentB = new Mock<ICurrentUser>();
         currentB.SetupGet(c => c.UserId).Returns(UserB);
-        var ctlB = new FavoritesController(sharedRepo, entitlements.Object, currentB.Object, config);
+        var ctlB = new FavoritesController(sharedRepo, entitlements.Object, currentB.Object, ctx, config);
 
         var id = Guid.NewGuid();
         await ctlA.Create(NewRequest(id, "MineA"), CancellationToken.None);
         var result = await ctlB.Create(NewRequest(id, "MineB"), CancellationToken.None);
 
-        var conflict = result.Result.Should().BeOfType<ConflictObjectResult>().Subject;
-        conflict.StatusCode.Should().Be(409);
+        var status = result.Result.Should().BeOfType<ObjectResult>().Subject;
+        status.StatusCode.Should().Be(409);
     }
 
     [Fact]
@@ -115,7 +115,8 @@ public class FavoritesControllerTests
 
         var result = await controller.Create(req, CancellationToken.None);
 
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
+        var status = result.Result.Should().BeOfType<ObjectResult>().Subject;
+        status.StatusCode.Should().Be(400);
     }
 
     [Fact]
@@ -126,7 +127,8 @@ public class FavoritesControllerTests
 
         var result = await controller.Create(req, CancellationToken.None);
 
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
+        var status = result.Result.Should().BeOfType<ObjectResult>().Subject;
+        status.StatusCode.Should().Be(400);
     }
 
     [Fact]
@@ -144,11 +146,11 @@ public class FavoritesControllerTests
 
         var currentA = new Mock<ICurrentUser>();
         currentA.SetupGet(c => c.UserId).Returns(UserA);
-        var ctlA = new FavoritesController(sharedRepo, ent.Object, currentA.Object, config);
+        var ctlA = new FavoritesController(sharedRepo, ent.Object, currentA.Object, ctx, config);
 
         var currentB = new Mock<ICurrentUser>();
         currentB.SetupGet(c => c.UserId).Returns(UserB);
-        var ctlB = new FavoritesController(sharedRepo, ent.Object, currentB.Object, config);
+        var ctlB = new FavoritesController(sharedRepo, ent.Object, currentB.Object, ctx, config);
 
         // UserA creates a favorite
         var idForA = Guid.NewGuid();
@@ -210,7 +212,7 @@ public class FavoritesControllerTests
         await controller.Create(NewRequest(name: "A"), CancellationToken.None);
         await controller.Create(NewRequest(name: "B"), CancellationToken.None);
 
-        var result = await controller.GetAll(since: null, CancellationToken.None);
+        var result = await controller.GetAll(since: null, limit: null, CancellationToken.None);
         var ok = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var body = ok.Value.Should().BeOfType<FavoritesSyncResponse>().Subject;
 
@@ -240,7 +242,7 @@ public class FavoritesControllerTests
         repo.Update(oldFav);
         await repo.SaveChangesAsync();
 
-        var result = await controller.GetAll(since: cutoff, CancellationToken.None);
+        var result = await controller.GetAll(since: cutoff, limit: null, CancellationToken.None);
         var body = ((OkObjectResult)result.Result!).Value.Should().BeOfType<FavoritesSyncResponse>().Subject;
 
         body.Favorites.Should().ContainSingle().Which.DisplayName.Should().Be("New");

@@ -5,6 +5,9 @@
 **/.idea/
 **/*.user
 **/appsettings.Development.json
+**/appsettings.Development.example.json
+**/appsettings.Production.json
+**/secrets.json
 Tests/
 database/
 README.md
