@@ -1,6 +1,5 @@
-import axios from 'axios';
-
 import { client } from '@/lib/api/client';
+import { toAppError } from '@/lib/api/error';
 import { getDb } from '@/lib/db';
 import { getSyncState, setSyncState } from '@/lib/db/sync-state';
 
@@ -25,7 +24,12 @@ interface FavoritesSyncResponse {
   favorites: ServerFavorite[];
   deletions: string[];
   syncedAt: string;
+  // Present on hardened backend; absent (treated as false) on legacy backend.
+  hasMore?: boolean;
 }
+
+const PULL_PAGE_LIMIT = 500;
+const MAX_PULL_PAGES = 50;   // safety net against runaway loops
 
 let flushInFlight: Promise<void> | null = null;
 let pullInFlight: Promise<void> | null = null;
@@ -64,18 +68,13 @@ async function doFlush(): Promise<void> {
       await outbox.markDone(entry.id);
       await clearDirty(entry.favoriteId);
     } catch (e) {
-      const status = axios.isAxiosError(e) ? e.response?.status : undefined;
-      const message = axios.isAxiosError(e)
-        ? (e.response?.data as { error?: string } | undefined)?.error ?? e.message
-        : e instanceof Error
-          ? e.message
-          : String(e);
-
-      if (status && status >= 400 && status < 500) {
-        await outbox.markFailed(entry.id, `${status}: ${message}`);
-      } else {
-        await outbox.markFailed(entry.id, message);
-      }
+      const appError = toAppError(e);
+      // Format: "<status>:<code>: <message>" so useStuckOutbox can match either on status (402
+      // legacy / 403 hardened) or on code ("FREE_TIER_CAP") without parsing JSON.
+      const formatted = appError.status
+        ? `${appError.status}:${appError.code}: ${appError.message}`
+        : `${appError.code}: ${appError.message}`;
+      await outbox.markFailed(entry.id, formatted);
     }
   }
 }
@@ -96,12 +95,36 @@ async function clearDirty(favoriteId: string): Promise<void> {
 }
 
 async function doPull(): Promise<void> {
-  const since = await getSyncState('last_synced_at');
-  const resp = await client.get<FavoritesSyncResponse>('/favorites', {
-    params: since ? { since } : undefined,
-  });
-  const { favorites, deletions, syncedAt } = resp.data;
+  // Loop through pages until the backend signals there's nothing more. Legacy backend never
+  // sends hasMore=true, so the loop exits after one iteration there.
+  let since = await getSyncState('last_synced_at');
+  let nextSince: string | null = since;
+  let pages = 0;
 
+  while (pages < MAX_PULL_PAGES) {
+    const params: Record<string, string | number> = { limit: PULL_PAGE_LIMIT };
+    if (since) params.since = since;
+
+    const resp = await client.get<FavoritesSyncResponse>('/favorites', { params });
+    const { favorites, deletions, syncedAt, hasMore } = resp.data;
+
+    await applyPage(favorites, deletions);
+    nextSince = syncedAt;
+    pages += 1;
+
+    if (!hasMore) break;
+    // Advance the cursor to the latest row's updatedAt so the next page picks up from there.
+    // Server includes the row in the response; we keep updatedAt as the cursor to avoid losing
+    // ties (server uses >= comparator).
+    const latest = favorites[favorites.length - 1];
+    if (!latest) break;
+    since = latest.updatedAt ?? latest.createdAt;
+  }
+
+  if (nextSince) await setSyncState('last_synced_at', nextSince);
+}
+
+async function applyPage(favorites: ServerFavorite[], deletions: string[]): Promise<void> {
   const db = await getDb();
   await db.withTransactionAsync(async () => {
     for (const f of favorites) {
@@ -134,6 +157,4 @@ async function doPull(): Promise<void> {
       await db.runAsync('DELETE FROM favorites WHERE id = ? AND dirty = 0', id);
     }
   });
-
-  await setSyncState('last_synced_at', syncedAt);
 }

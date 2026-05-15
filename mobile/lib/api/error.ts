@@ -6,10 +6,30 @@ export interface AppError {
   status?: number;
 }
 
+// Forward-compatible across two backend error shapes:
+//  - Legacy:        { error: "..."  }                 — pre-hardening backend.
+//  - ProblemDetails: { title, code, type, status, ...} — RFC 7807, post-hardening backend.
 interface BackendErrorBody {
   code?: string;
   message?: string;
   error?: string;
+  title?: string;
+  detail?: string;
+  type?: string;
+}
+
+function extractCode(body: BackendErrorBody | undefined, status: number): string {
+  if (body?.code) return body.code;
+  // ProblemDetails `type` is "about:blank#CODE"; pull the fragment.
+  if (body?.type) {
+    const hash = body.type.indexOf('#');
+    if (hash >= 0) return body.type.slice(hash + 1);
+  }
+  return `http_${status}`;
+}
+
+function extractMessage(body: BackendErrorBody | undefined, fallback: string): string {
+  return body?.title ?? body?.message ?? body?.error ?? body?.detail ?? fallback;
 }
 
 export function toAppError(e: unknown): AppError {
@@ -20,8 +40,8 @@ export function toAppError(e: unknown): AppError {
 
     if (status) {
       return {
-        code: body?.code ?? `http_${status}`,
-        message: body?.message ?? body?.error ?? axErr.message,
+        code: extractCode(body, status),
+        message: extractMessage(body, axErr.message),
         status,
       };
     }
