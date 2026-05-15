@@ -63,18 +63,18 @@ public partial class AuthService(
         {
             await userRepo.AddAsync(user, ct);
             await userRepo.SaveChangesAsync(ct);
+
+            var tokens = await IssueTokensAsync(user, ct);
+            await tx.CommitIfPresentAsync(ct);
+
+            return Result.Success(new AuthResult(
+                tokens.Access, tokens.Refresh, tokens.AccessExpiresAt, UserMapping.ToDto(user)));
         }
         catch (DbUpdateException ex) when (IsUniqueViolation(ex))
         {
             await tx.RollbackIfPresentAsync(ct);
             return Result.Failure<AuthResult>(ErrorCodes.EmailTaken, "Υπάρχει ήδη λογαριασμός με αυτό το email.");
         }
-
-        var tokens = await IssueTokensAsync(user, ct);
-        await tx.CommitIfPresentAsync(ct);
-
-        return Result.Success(new AuthResult(
-            tokens.Access, tokens.Refresh, tokens.AccessExpiresAt, UserMapping.ToDto(user)));
     }
 
     public async Task<Result<AuthResult>> ClaimAnonymousAsync(Guid anonymousUserId, AnonymousClaimRequest request, CancellationToken ct = default)
@@ -166,10 +166,13 @@ public partial class AuthService(
 
         if (revokedRows == 0)
         {
-            // Inspect: was the row simply already revoked (race with a logout, or expired)
-            // or was it revoked by a *previous successful rotation* (reuse)? If the original
-            // token was revoked AFTER it was first presented, that's reuse-after-rotation.
-            if (existing.RevokedAt is not null)
+            // The snapshot we loaded earlier may be stale (another concurrent rotation just won
+            // the conditional UPDATE we lost). Re-read to see the *current* row state.
+            // - RevokedAt set now → either we lost a concurrent race (reuse) or this token was
+            //   already revoked when we first loaded it (also reuse). Either way: revoke family.
+            // - RevokedAt still null → the row is unrevoked but expired (or never existed).
+            var fresh = await refreshRepo.GetByTokenHashAsync(tokenHash, ct);
+            if (fresh?.RevokedAt is not null)
             {
                 await refreshRepo.RevokeAllForUserAsync(existing.UserId, ct);
                 return Result.Failure<RefreshResult>(ErrorCodes.RefreshTokenReused,

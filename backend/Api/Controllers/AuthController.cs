@@ -83,12 +83,7 @@ public class AuthController(IAuthService authService, ICurrentUser currentUser) 
     {
         var result = await authService.ResetPasswordAsync(request, ct);
         if (result.IsFailure)
-        {
-            var status = result.ErrorCode == ErrorCodes.InvalidResetToken
-                ? StatusCodes.Status400BadRequest
-                : StatusCodes.Status400BadRequest;
-            return ProblemDetailsError(status, result.ErrorCode, result.Error);
-        }
+            return ProblemDetailsError(StatusCodes.Status400BadRequest, result.ErrorCode, result.Error);
         return Ok(new { message = "Ο κωδικός άλλαξε επιτυχώς." });
     }
 

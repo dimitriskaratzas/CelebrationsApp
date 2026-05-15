@@ -1,5 +1,6 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -10,15 +11,40 @@ namespace Infrastructure.Persistence;
 // Mobile clients may go offline for weeks; tombstones must persist long enough that
 // a returning client pulls them via ?since= and removes the matching local row.
 // Anything older than RetentionDays is safe to garbage-collect.
+//
+// Disabled by default outside Production. Operators can override with the
+// `Maintenance:TombstoneRetention:Enabled` configuration key (true/false).
 public class TombstoneRetentionService(
     IServiceProvider services,
+    IConfiguration config,
+    IHostEnvironment env,
     ILogger<TombstoneRetentionService> logger) : BackgroundService
 {
     private static readonly TimeSpan RunInterval = TimeSpan.FromHours(24);
     private const int RetentionDays = 180;
 
+    private bool IsEnabled()
+    {
+        var configured = config.GetSection("Maintenance:TombstoneRetention:Enabled").Value;
+        if (bool.TryParse(configured, out var explicitFlag)) return explicitFlag;
+        return env.IsProduction();
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (!IsEnabled())
+        {
+            logger.LogInformation(
+                "TombstoneRetentionService disabled (env={Env}). " +
+                "Enable via Maintenance:TombstoneRetention:Enabled=true.",
+                env.EnvironmentName);
+            return;
+        }
+
+        logger.LogInformation(
+            "TombstoneRetentionService active. Retention={RetentionDays}d, interval={RunInterval}.",
+            RetentionDays, RunInterval);
+
         // Sleep first so app boot isn't slowed by the sweep.
         try { await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); }
         catch (TaskCanceledException) { return; }
