@@ -6,6 +6,7 @@ using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -91,17 +92,22 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Liveness probe — cheap, no DB. Use this for load balancer / container orchestrator probes.
-app.MapGet("/api/health", () => Results.Ok(new { status = "ok" })).AllowAnonymous();
+app.MapGet("/api/health", [AllowAnonymous] () => Results.Ok(new { status = "ok" }));
 
 // Readiness probe — also touches the DB so external probes can stop sending traffic when the
 // pool is unreachable (e.g. Supabase rotating IPs, network hiccup after a cold start).
-app.MapGet("/api/ready", async (AppDbContext db, CancellationToken ct) =>
+// Note: `[AllowAnonymous]` is applied as an attribute on the delegate (not `.AllowAnonymous()`
+// chained on the builder) because the latter doesn't reliably opt out of `FallbackPolicy =
+// RequireAuthenticatedUser` for async delegates with DI parameters in .NET 10.
+app.MapGet("/api/ready", [AllowAnonymous] async (
+    [FromServices] AppDbContext db,
+    CancellationToken ct) =>
 {
     var ok = await db.Database.CanConnectAsync(ct);
     return ok
         ? Results.Ok(new { status = "ready" })
         : Results.Json(new { status = "not_ready" }, statusCode: StatusCodes.Status503ServiceUnavailable);
-}).AllowAnonymous();
+});
 
 app.Run();
 
