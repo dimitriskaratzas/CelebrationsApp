@@ -8,6 +8,7 @@
     "scheme": "celebrations",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "platforms": ["android"],
     "android": {
       "package": "com.dimkaratz.celebrations",
       "adaptiveIcon": {
