@@ -3,15 +3,18 @@ import { useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import { useSync } from '@/lib/sync/SyncProvider';
+import { Banner } from '@/lib/ui/Banner';
 import { EmptyState } from '@/lib/ui/EmptyState';
 
 import { FavoriteRow } from '../components/FavoriteRow';
 import { useFavorites } from '../hooks/useFavorites';
+import { useStuckOutbox } from '../hooks/useStuckOutbox';
 
 export function FavoritesListScreen() {
   const router = useRouter();
   const { favorites, loading } = useFavorites();
   const { syncNow, isSyncing } = useSync();
+  const stuck = useStuckOutbox();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -35,6 +38,15 @@ export function FavoritesListScreen() {
           <Text style={styles.addText}>+</Text>
         </Pressable>
       </View>
+
+      {stuck.capReached ? (
+        <Banner
+          tone="warning"
+          message="Έχεις φτάσει το όριο. Διέγραψε κάποιους για να συνεχίσει ο συγχρονισμός."
+        />
+      ) : stuck.totalStuck > 0 ? (
+        <Banner tone="warning" message="Κάποιες αλλαγές δεν αποθηκεύτηκαν στον διακομιστή." />
+      ) : null}
 
       <FlatList
         data={favorites}
