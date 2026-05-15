@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { client } from '@/lib/api/client';
 import { toAppError } from '@/lib/api/error';
 import { getDb } from '@/lib/db';
+import { useSync } from '@/lib/sync/SyncProvider';
 
 export default function TodayScreen() {
   const [tables, setTables] = useState<string[] | null>(null);
   const [health, setHealth] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { user, isAnonymous } = useAuth();
+  const { isSyncing, pendingCount, lastSyncedAt } = useSync();
 
   useEffect(() => {
     (async () => {
@@ -45,6 +49,15 @@ export default function TodayScreen() {
       )}
       <Text style={styles.debug}>API /health (T6 check):</Text>
       <Text style={styles.tableRow}>{health ?? '…'}</Text>
+      <Text style={styles.debug}>Auth (T7 check):</Text>
+      <Text style={styles.tableRow}>
+        user={user?.id?.slice(0, 8) ?? 'null'} anon={String(isAnonymous)}
+      </Text>
+      <Text style={styles.debug}>Sync (T10 check):</Text>
+      <Text style={styles.tableRow}>
+        syncing={String(isSyncing)} pending={pendingCount}
+      </Text>
+      <Text style={styles.tableRow}>last={lastSyncedAt ?? 'never'}</Text>
     </View>
   );
 }
