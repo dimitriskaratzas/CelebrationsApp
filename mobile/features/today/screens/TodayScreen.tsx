@@ -104,7 +104,7 @@ export function TodayScreen() {
         >
           <Pressable
             style={styles.cta}
-            onPress={() => router.push('/favorite/new' as never)}
+            onPress={() => router.push('/favorite/new')}
           >
             <Text style={styles.ctaText}>Προσθήκη αγαπημένου</Text>
           </Pressable>

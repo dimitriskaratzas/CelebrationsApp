@@ -22,7 +22,7 @@ export function FavoriteRow({ favorite }: Props) {
   const router = useRouter();
   return (
     <Pressable
-      onPress={() => router.push(`/favorite/${favorite.id}` as never)}
+      onPress={() => router.push({ pathname: '/favorite/[id]', params: { id: favorite.id } })}
       style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
     >
       <View style={styles.main}>

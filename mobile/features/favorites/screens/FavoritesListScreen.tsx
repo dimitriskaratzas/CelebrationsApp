@@ -35,7 +35,7 @@ export function FavoritesListScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Αγαπημένα</Text>
         <Pressable
-          onPress={() => router.push('/favorite/new' as never)}
+          onPress={() => router.push('/favorite/new')}
           disabled={atCap}
           style={({ pressed }) => [
             styles.add,

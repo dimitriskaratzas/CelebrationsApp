@@ -40,7 +40,7 @@ export function CelebratingCard({ item, showDate = false, today }: Props) {
 
   return (
     <Pressable
-      onPress={() => router.push(`/favorite/${favorite.id}` as never)}
+      onPress={() => router.push({ pathname: '/favorite/[id]', params: { id: favorite.id } })}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <View style={styles.main}>

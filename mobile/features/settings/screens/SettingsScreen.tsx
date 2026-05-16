@@ -33,11 +33,11 @@ export function SettingsScreen() {
         />
         <ActionRow
           label="Σύνδεση"
-          onPress={() => router.push('/auth/sign-in' as never)}
+          onPress={() => router.push('/auth/sign-in')}
         />
         <ActionRow
           label="Δημιουργία λογαριασμού"
-          onPress={() => router.push('/auth/register' as never)}
+          onPress={() => router.push('/auth/register')}
         />
       </Section>
 
