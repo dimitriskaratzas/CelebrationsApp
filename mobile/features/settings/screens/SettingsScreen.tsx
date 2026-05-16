@@ -3,15 +3,16 @@ import { el } from 'date-fns/locale';
 import * as Application from 'expo-application';
 import { useRouter } from 'expo-router';
 import * as Updates from 'expo-updates';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSync } from '@/lib/sync/SyncProvider';
+import { Banner } from '@/lib/ui/Banner';
 
 export function SettingsScreen() {
   const router = useRouter();
   const { user, isAnonymous } = useAuth();
-  const { lastSyncedAt, pendingCount, isSyncing, syncNow } = useSync();
+  const { lastSyncedAt, pendingCount, isSyncing, lastError, syncNow } = useSync();
 
   const lastSyncLabel = lastSyncedAt
     ? format(new Date(lastSyncedAt), "EEEE d MMMM, HH:mm", { locale: el })
@@ -49,7 +50,13 @@ export function SettingsScreen() {
             void syncNow();
           }}
           disabled={isSyncing}
+          spinner={isSyncing}
         />
+        {lastError && !isSyncing ? (
+          <View style={styles.errorRow}>
+            <Banner tone="error" message={`Σφάλμα συγχρονισμού: ${lastError}`} />
+          </View>
+        ) : null}
       </Section>
 
       <Section title="Σχετικά">
@@ -83,10 +90,12 @@ function ActionRow({
   label,
   onPress,
   disabled,
+  spinner,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  spinner?: boolean;
 }) {
   return (
     <Pressable
@@ -95,6 +104,7 @@ function ActionRow({
       style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
     >
       <Text style={[styles.action, disabled && styles.actionDisabled]}>{label}</Text>
+      {spinner ? <ActivityIndicator size="small" /> : null}
     </Pressable>
   );
 }
@@ -132,4 +142,5 @@ const styles = StyleSheet.create({
   rowSecondary: { fontSize: 14, color: '#666' },
   action: { fontSize: 15, color: '#1565c0', fontWeight: '500' },
   actionDisabled: { color: '#999' },
+  errorRow: { paddingHorizontal: 16, paddingVertical: 8 },
 });

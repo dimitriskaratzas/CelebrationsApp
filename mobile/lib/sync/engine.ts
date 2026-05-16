@@ -1,5 +1,5 @@
 import { client } from '@/lib/api/client';
-import { toAppError } from '@/lib/api/error';
+import { toAppError, type AppError } from '@/lib/api/error';
 import { getDb } from '@/lib/db';
 import { getSyncState, setSyncState } from '@/lib/db/sync-state';
 
@@ -31,6 +31,17 @@ interface FavoritesSyncResponse {
 const PULL_PAGE_LIMIT = 500;
 const MAX_PULL_PAGES = 50;   // safety net against runaway loops
 
+// 4xx codes/statuses we never want to retry — they're permanent until the user fixes
+// something on their end (deletes a favorite, fixes input, etc.).
+const NON_RETRYABLE_CODES = new Set(['FREE_TIER_CAP', 'VALIDATION', 'DUPLICATE_FAVORITE_ID']);
+const NON_RETRYABLE_STATUSES = new Set([400, 402, 403, 422]);
+
+function isNonRetryable(appError: AppError): boolean {
+  if (appError.code && NON_RETRYABLE_CODES.has(appError.code)) return true;
+  if (appError.status && NON_RETRYABLE_STATUSES.has(appError.status)) return true;
+  return false;
+}
+
 let flushInFlight: Promise<void> | null = null;
 let pullInFlight: Promise<void> | null = null;
 
@@ -55,12 +66,16 @@ export async function pendingCount(): Promise<number> {
 async function doFlush(): Promise<void> {
   const entries = await outbox.peek();
   for (const entry of entries) {
-    if (entry.attempts > 0) {
+    // Permanently-blocked 4xx entries are skipped so newer writes can flush past them.
+    // They still surface in useStuckOutbox.
+    if (entry.blocked) continue;
+
+    if (entry.attempts > 0 && entry.attempts < STUCK_THRESHOLD) {
+      // Exponential backoff measured from the LAST attempt (not creation), so a stuck-then-foregrounded
+      // app doesn't burn through the budget in seconds.
       const wait = Math.min(BACKOFF_BASE_MS * 2 ** (entry.attempts - 1), BACKOFF_CAP_MS);
-      const lastAttempted = new Date(entry.createdAt).getTime();
-      if (Date.now() - lastAttempted < wait && entry.attempts < STUCK_THRESHOLD) {
-        continue;
-      }
+      const lastAttempted = new Date(entry.lastAttemptedAt ?? entry.createdAt).getTime();
+      if (Date.now() - lastAttempted < wait) continue;
     }
 
     try {
@@ -74,7 +89,7 @@ async function doFlush(): Promise<void> {
       const formatted = appError.status
         ? `${appError.status}:${appError.code}: ${appError.message}`
         : `${appError.code}: ${appError.message}`;
-      await outbox.markFailed(entry.id, formatted);
+      await outbox.markFailed(entry.id, formatted, { blocked: isNonRetryable(appError) });
     }
   }
 }
@@ -109,16 +124,22 @@ async function doPull(): Promise<void> {
     const { favorites, deletions, syncedAt, hasMore } = resp.data;
 
     await applyPage(favorites, deletions);
-    nextSince = syncedAt;
     pages += 1;
 
-    if (!hasMore) break;
+    if (!hasMore) {
+      // Only persist the server's authoritative syncedAt when we've drained everything.
+      // Persisting it mid-paging would mean a crash leaves us at the last full-sweep cursor,
+      // skipping later pages on the next pull.
+      nextSince = syncedAt;
+      break;
+    }
+
     // Advance the cursor to the latest row's updatedAt so the next page picks up from there.
-    // Server includes the row in the response; we keep updatedAt as the cursor to avoid losing
-    // ties (server uses >= comparator).
+    // Server uses >= comparator so any tie is included.
     const latest = favorites[favorites.length - 1];
     if (!latest) break;
     since = latest.updatedAt ?? latest.createdAt;
+    nextSince = since;
   }
 
   if (nextSince) await setSyncState('last_synced_at', nextSince);

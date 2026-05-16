@@ -1,8 +1,10 @@
 import { format } from 'date-fns';
 import { el } from 'date-fns/locale';
-import { useMemo } from 'react';
-import { SectionList, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AppState, type AppStateStatus, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 
+import { useFavorites } from '@/features/favorites/hooks/useFavorites';
 import { EmptyState } from '@/lib/ui/EmptyState';
 
 import { CelebratingCard } from '../components/CelebratingCard';
@@ -15,8 +17,49 @@ interface Section {
   empty?: string;
 }
 
+// Returns ms until the *start* of the next local day. Used to schedule a
+// re-render when midnight ticks over while the app stays foregrounded.
+function msUntilMidnight(now: Date): number {
+  const next = new Date(now);
+  next.setHours(24, 0, 0, 0);
+  return Math.max(1000, next.getTime() - now.getTime());
+}
+
+function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
 export function TodayScreen() {
-  const today = useMemo(() => new Date(), []);
+  const router = useRouter();
+  const { favorites } = useFavorites();
+  const [today, setToday] = useState(() => new Date());
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Refresh `today` (a) at the next local midnight and (b) whenever the app
+  // becomes active. Both paths reschedule the midnight timer.
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      setToday((prev) => (isSameDay(prev, now) ? prev : now));
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(tick, msUntilMidnight(now));
+    };
+    timerRef.current = setTimeout(tick, msUntilMidnight(new Date()));
+
+    const sub = AppState.addEventListener('change', (status: AppStateStatus) => {
+      if (status === 'active') tick();
+    });
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      sub.remove();
+    };
+  }, []);
+
   const { today: todayItems, upcoming, saintsToday, loading } = useTodayList(today);
 
   const sections: Section[] = useMemo(() => {
@@ -46,6 +89,30 @@ export function TodayScreen() {
     );
   }
 
+  // First-launch empty state — no favorites yet, nudge towards adding one.
+  if (favorites.length === 0 && todayItems.length === 0 && upcoming.length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            {`Σήμερα, ${format(today, 'EEEE d MMMM', { locale: el })}`}
+          </Text>
+        </View>
+        <EmptyState
+          title="Δεν υπάρχουν αγαπημένα ακόμα"
+          message="Πρόσθεσε το πρώτο σου αγαπημένο για να δεις τις γιορτές του εδώ."
+        >
+          <Pressable
+            style={styles.cta}
+            onPress={() => router.push('/favorite/new' as never)}
+          >
+            <Text style={styles.ctaText}>Προσθήκη αγαπημένου</Text>
+          </Pressable>
+        </EmptyState>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -61,7 +128,7 @@ export function TodayScreen() {
         sections={sections}
         keyExtractor={(item) => item.id}
         renderItem={({ item, section }) => (
-          <CelebratingCard item={item} showDate={section.showDate} />
+          <CelebratingCard item={item} showDate={section.showDate} today={today} />
         )}
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeader}>
@@ -100,4 +167,12 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 13, fontWeight: '600', color: '#666', textTransform: 'uppercase', letterSpacing: 0.5 },
   emptyRow: { paddingHorizontal: 16, paddingVertical: 12 },
   emptyText: { color: '#888' },
+  cta: {
+    marginTop: 12,
+    backgroundColor: '#1565c0',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  ctaText: { color: '#fff', fontWeight: '600' },
 });

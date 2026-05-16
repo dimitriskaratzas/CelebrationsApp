@@ -2,6 +2,8 @@ import NetInfo from '@react-native-community/netinfo';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
+import { getSyncState } from '@/lib/db/sync-state';
+
 import { flushOutbox, pendingCount, pull } from './engine';
 
 interface SyncState {
@@ -43,6 +45,14 @@ export function SyncProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     mountedRef.current = true;
+
+    // Hydrate the displayed last-sync from the persisted cursor so the Settings
+    // screen doesn't show "Ποτέ" on every cold start before sync completes.
+    (async () => {
+      const persisted = await getSyncState('last_synced_at');
+      if (mountedRef.current && persisted) setLastSyncedAt(persisted);
+    })();
+
     syncNow();
 
     const netSub = NetInfo.addEventListener((state) => {

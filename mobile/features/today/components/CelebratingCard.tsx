@@ -10,9 +10,17 @@ import type { TodayItem } from '../hooks/useTodayList';
 interface Props {
   item: TodayItem;
   showDate?: boolean;
+  today?: Date;
 }
 
-export function CelebratingCard({ item, showDate = false }: Props) {
+function birthdayLabel(age: number | undefined): string {
+  if (age === undefined) return 'Γενέθλια';
+  // "κλείνει 0" reads as "hasn't been born yet" in Greek; treat <=0 as just "Γενέθλια".
+  if (age <= 0) return 'Γενέθλια';
+  return `Γενέθλια • κλείνει ${age}`;
+}
+
+export function CelebratingCard({ item, showDate = false, today }: Props) {
   const router = useRouter();
   const { favorite, kind, date, primaryForm, ageThisYear } = item;
 
@@ -21,9 +29,14 @@ export function CelebratingCard({ item, showDate = false }: Props) {
       ? primaryForm
         ? `Ονομαστική • ${primaryForm}`
         : 'Ονομαστική γιορτή'
-      : ageThisYear !== undefined
-        ? `Γενέθλια • κλείνει ${ageThisYear}`
-        : 'Γενέθλια';
+      : birthdayLabel(ageThisYear);
+
+  // Show year only when the celebration crosses the year boundary (e.g. an upcoming
+  // 01/01 viewed in late December). Same-year dates render as dd/MM.
+  const crossesYear = today ? date.getFullYear() !== today.getFullYear() : false;
+  const dateLabel = crossesYear
+    ? format(date, 'dd/MM/yyyy', { locale: el })
+    : format(date, 'dd/MM', { locale: el });
 
   return (
     <Pressable
@@ -40,7 +53,7 @@ export function CelebratingCard({ item, showDate = false }: Props) {
       {showDate ? (
         <View style={styles.dateBox}>
           <Text style={styles.dayName}>{format(date, 'EEEE', { locale: el })}</Text>
-          <Text style={styles.dateText}>{format(date, 'dd/MM', { locale: el })}</Text>
+          <Text style={styles.dateText}>{dateLabel}</Text>
         </View>
       ) : null}
     </Pressable>

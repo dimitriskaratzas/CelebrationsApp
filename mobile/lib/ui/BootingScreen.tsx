@@ -11,7 +11,7 @@ export function BootingScreen({ message = 'Συνδεόμαστε…', error, on
     <View style={styles.container}>
       {error ? (
         <>
-          <Text style={styles.errorTitle}>Χρειάζεται σύνδεση στο διαδίκτυο</Text>
+          <Text style={styles.errorTitle}>Δεν ήταν δυνατή η σύνδεση</Text>
           <Text style={styles.errorMessage}>{error}</Text>
           {onRetry ? (
             <Text style={styles.retry} onPress={onRetry}>

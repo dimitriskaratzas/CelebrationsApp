@@ -69,13 +69,10 @@ export function NamedayConfirm({ match, selectedKey, onChange }: Props) {
             ({celebrationDateLabel(match.entry)}).
           </Text>
           <View style={styles.actions}>
-            <Pressable onPress={() => onChange(match.entry.nameday_key)}>
-              <Text style={styles.link}>Επιβεβαίωση</Text>
+            <Pressable onPress={() => setPickerOpen(true)} hitSlop={8}>
+              <Text style={styles.link}>Αλλαγή ονόματος γιορτής</Text>
             </Pressable>
-            <Pressable onPress={() => setPickerOpen(true)}>
-              <Text style={styles.link}>Αλλαγή</Text>
-            </Pressable>
-            <Pressable onPress={() => onChange(NO_NAMEDAY)}>
+            <Pressable onPress={() => onChange(NO_NAMEDAY)} hitSlop={8}>
               <Text style={styles.link}>Καμία γιορτή</Text>
             </Pressable>
           </View>
@@ -176,7 +173,7 @@ const styles = StyleSheet.create({
   cardText: { fontSize: 14, color: '#333' },
   bold: { fontWeight: '600' },
   link: { color: '#1565c0', fontWeight: '600' },
-  actions: { flexDirection: 'row', gap: 16, flexWrap: 'wrap' },
+  actions: { flexDirection: 'column', gap: 8 },
   choice: { paddingVertical: 8 },
   choiceText: { fontSize: 14, color: '#1565c0' },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },

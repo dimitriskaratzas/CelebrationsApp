@@ -3,7 +3,7 @@ import { createContext, createElement, useContext, useEffect, useState, type Rea
 import { setAccessToken } from '@/lib/api/client';
 import { toAppError } from '@/lib/api/error';
 import { clearTokens, getTokens, saveTokens } from '@/lib/auth/tokens';
-import { setSyncState } from '@/lib/db/sync-state';
+import { getSyncState, setSyncState } from '@/lib/db/sync-state';
 
 import { anonymous, refresh, type User } from '../api/auth.api';
 
@@ -102,7 +102,6 @@ export function useAuth(): AuthState {
 }
 
 async function getStoredUser(): Promise<User | null> {
-  const { getSyncState } = await import('@/lib/db/sync-state');
   const id = await getSyncState('user_id');
   if (!id) return null;
   return {

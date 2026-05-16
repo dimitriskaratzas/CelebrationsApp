@@ -60,6 +60,7 @@ export function EditFavoriteScreen() {
     <>
       <Stack.Screen
         options={{
+          title: favorite.displayName,
           headerRight: () => (
             <Pressable onPress={onDelete} accessibilityLabel="Διαγραφή">
               <Text style={styles.delete}>Διαγραφή</Text>

@@ -8,6 +8,8 @@ export interface OutboxEntry {
   createdAt: string;
   attempts: number;
   lastError: string | null;
+  lastAttemptedAt: string | null;
+  blocked: boolean;
 }
 
 export interface FavoritePayload {

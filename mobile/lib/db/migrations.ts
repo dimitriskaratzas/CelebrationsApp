@@ -47,6 +47,20 @@ const MIGRATIONS: Migration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    name: 'outbox_last_attempted_blocked',
+    sql: `
+      -- last_attempted_at: timestamp of the most recent retry. Backoff is computed from this,
+      --   not from created_at — otherwise the window is exhausted in the first few seconds of
+      --   the entry's life and every subsequent foreground burns through retries.
+      -- blocked: set to 1 on entries that returned a non-retryable 4xx (e.g. cap, validation).
+      --   The flush loop skips past blocked entries so they don't head-of-line newer writes.
+      ALTER TABLE outbox ADD COLUMN last_attempted_at TEXT;
+      ALTER TABLE outbox ADD COLUMN blocked INTEGER NOT NULL DEFAULT 0;
+      CREATE INDEX IF NOT EXISTS idx_outbox_blocked ON outbox (blocked);
+    `,
+  },
 ];
 
 export async function runMigrations(db: SQLiteDatabase): Promise<void> {

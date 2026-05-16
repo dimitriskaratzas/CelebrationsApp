@@ -10,12 +10,16 @@ import { FavoriteRow } from '../components/FavoriteRow';
 import { useFavorites } from '../hooks/useFavorites';
 import { useStuckOutbox } from '../hooks/useStuckOutbox';
 
+const FREE_TIER_CAP = 10;
+
 export function FavoritesListScreen() {
   const router = useRouter();
   const { favorites, loading } = useFavorites();
   const { syncNow, isSyncing } = useSync();
   const stuck = useStuckOutbox();
   const [refreshing, setRefreshing] = useState(false);
+
+  const atCap = favorites.length >= FREE_TIER_CAP;
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -32,17 +36,24 @@ export function FavoritesListScreen() {
         <Text style={styles.title}>Αγαπημένα</Text>
         <Pressable
           onPress={() => router.push('/favorite/new' as never)}
-          style={({ pressed }) => [styles.add, pressed && styles.addPressed]}
+          disabled={atCap}
+          style={({ pressed }) => [
+            styles.add,
+            pressed && !atCap && styles.addPressed,
+            atCap && styles.addDisabled,
+          ]}
+          hitSlop={8}
           accessibilityLabel="Προσθήκη αγαπημένου"
+          accessibilityState={{ disabled: atCap }}
         >
           <Text style={styles.addText}>+</Text>
         </Pressable>
       </View>
 
-      {stuck.capReached ? (
+      {atCap || stuck.capReached ? (
         <Banner
           tone="warning"
-          message="Έχεις φτάσει το όριο. Διέγραψε κάποιους για να συνεχίσει ο συγχρονισμός."
+          message="Έχεις φτάσει το όριο των 10 αγαπημένων. Διέγραψε κάποιους για να προσθέσεις νέους."
         />
       ) : stuck.totalStuck > 0 ? (
         <Banner tone="warning" message="Κάποιες αλλαγές δεν αποθηκεύτηκαν στον διακομιστή." />
@@ -81,14 +92,15 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 24, fontWeight: '700' },
   add: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#1565c0',
     alignItems: 'center',
     justifyContent: 'center',
   },
   addPressed: { opacity: 0.8 },
-  addText: { color: '#fff', fontSize: 22, lineHeight: 24, fontWeight: '600' },
+  addDisabled: { backgroundColor: '#bdbdbd' },
+  addText: { color: '#fff', fontSize: 26, lineHeight: 28, fontWeight: '600' },
   emptyContainer: { flexGrow: 1 },
 });

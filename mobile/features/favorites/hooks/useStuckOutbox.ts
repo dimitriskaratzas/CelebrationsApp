@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { getDb } from '@/lib/db';
+import { on } from '@/lib/events';
 import { useSync } from '@/lib/sync/SyncProvider';
 
 interface StuckSummary {
@@ -11,6 +12,11 @@ interface StuckSummary {
 export function useStuckOutbox(): StuckSummary {
   const [summary, setSummary] = useState<StuckSummary>({ capReached: false, totalStuck: 0 });
   const { pendingCount, isSyncing } = useSync();
+  const [tick, setTick] = useState(0);
+
+  // Refresh when the favorites list changes locally too — sync state alone misses the case
+  // where a user adds/deletes offline and we haven't attempted a flush yet.
+  useEffect(() => on('favorites:changed', () => setTick((n) => n + 1)), []);
 
   useEffect(() => {
     (async () => {
@@ -28,7 +34,7 @@ export function useStuckOutbox(): StuckSummary {
       });
       setSummary({ capReached, totalStuck: rows.length });
     })();
-  }, [pendingCount, isSyncing]);
+  }, [pendingCount, isSyncing, tick]);
 
   return summary;
 }

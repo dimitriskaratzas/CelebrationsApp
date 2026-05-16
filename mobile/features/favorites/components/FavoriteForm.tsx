@@ -39,9 +39,13 @@ export function FavoriteForm({ initial, saveLabel, onSubmit }: Props) {
   const [birthDate, setBirthDate] = useState<string | null>(initial?.birthDate ?? null);
   const [relationship, setRelationship] = useState<string | null>(initial?.relationship ?? null);
   const [notes, setNotes] = useState(initial?.notes ?? '');
-  const [namedayKey, setNamedayKey] = useState<string | null>(
-    initial?.namedayKey ? initial.namedayKey : null,
-  );
+  // Empty-string namedayKey means "the user explicitly opted out" (Καμία γιορτή).
+  // Map it to the NO_NAMEDAY sentinel so the form's NamedayConfirm renders the
+  // chosen "Δεν θα γιορτάζει" state instead of re-prompting on every edit.
+  const [namedayKey, setNamedayKey] = useState<string | null>(() => {
+    if (initial?.namedayKey === '') return NO_NAMEDAY;
+    return initial?.namedayKey ?? null;
+  });
   const [pickerOpen, setPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
