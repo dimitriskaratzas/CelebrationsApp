@@ -1,3 +1,4 @@
+import NetInfo from '@react-native-community/netinfo';
 import { createContext, createElement, useContext, useEffect, useState, type ReactNode } from 'react';
 
 import { setAccessToken } from '@/lib/api/client';
@@ -28,44 +29,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       setError(null);
-      try {
-        const existing = await getTokens();
 
-        if (existing) {
-          try {
-            const r = await refresh(existing.refresh);
-            await saveTokens({ access: r.accessToken, refresh: r.refreshToken });
-            setAccessToken(r.accessToken);
-          } catch {
+      // Fast path: existing tokens. Surface the app immediately from cached state and
+      // refresh in the background. A network or 5xx failure during refresh is NOT a
+      // reason to clear tokens — only an actual 401 from the server is.
+      const existing = await getTokens();
+      if (existing) {
+        setAccessToken(existing.access);
+        const stored = await getStoredUser();
+        if (!cancelled) {
+          setUser(stored);
+          setIsReady(true);
+        }
+
+        // Background refresh — best effort, no UI block.
+        try {
+          const r = await refresh(existing.refresh);
+          if (cancelled) return;
+          await saveTokens({ access: r.accessToken, refresh: r.refreshToken });
+          setAccessToken(r.accessToken);
+        } catch (e) {
+          const err = toAppError(e);
+          if (err.status === 401) {
+            // Refresh token rejected by server. Force re-auth on next opportunity by
+            // clearing tokens; the response interceptor on the next request will then
+            // fall through to a 401 which the user can recover from via UI.
             await clearTokens();
             setAccessToken(null);
           }
+          // Network / 5xx / timeout: keep the existing access token. Sync will retry.
         }
+        return;
+      }
 
-        let currentTokens = await getTokens();
-        let resolvedUser: User | null = null;
-
-        if (!currentTokens) {
-          const a = await anonymous();
-          await saveTokens({ access: a.accessToken, refresh: a.refreshToken });
-          setAccessToken(a.accessToken);
-          resolvedUser = a.user;
-          currentTokens = { access: a.accessToken, refresh: a.refreshToken };
-        } else {
-          setAccessToken(currentTokens.access);
-        }
-
-        if (!resolvedUser) {
-          const stored = await getStoredUser();
-          resolvedUser = stored;
-        }
-
-        if (resolvedUser) {
-          await setSyncState('user_id', resolvedUser.id);
-        }
-
+      // Slow path: no tokens. We have to anonymous-auth before the app is usable, so
+      // this one blocks boot. If it fails, surface the error screen with auto-retry.
+      try {
+        const a = await anonymous();
+        if (cancelled) return;
+        await saveTokens({ access: a.accessToken, refresh: a.refreshToken });
+        setAccessToken(a.accessToken);
+        await setSyncState('user_id', a.user.id);
         if (!cancelled) {
-          setUser(resolvedUser);
+          setUser(a.user);
           setIsReady(true);
         }
       } catch (e) {
@@ -80,6 +86,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, [attempt]);
+
+  // Auto-retry when connectivity is restored, but only while we're in the error
+  // state (no user resolved). Once the user is in the app, the sync engine handles
+  // its own NetInfo events — we don't want to re-run the auth flow.
+  useEffect(() => {
+    if (!error || user) return;
+    const sub = NetInfo.addEventListener((state) => {
+      if (state.isConnected) {
+        setIsReady(false);
+        setAttempt((n) => n + 1);
+      }
+    });
+    return () => sub();
+  }, [error, user]);
 
   const value: AuthState = {
     user,
