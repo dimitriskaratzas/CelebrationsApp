@@ -1,1 +1,1 @@
-export { TodayScreen as default } from '@/features/today/screens/TodayScreen';
+export { TodayScreenAegean as default } from '@/features/today/screens/TodayScreenAegean';

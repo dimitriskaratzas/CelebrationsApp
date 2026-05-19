@@ -13,12 +13,12 @@ interface Props {
 export function Button({ label, onPress, disabled, variant = 'primary', style }: Props) {
   const bg =
     variant === 'primary'
-      ? theme.colors.primary
+      ? theme.accent
       : variant === 'danger'
-        ? theme.colors.danger
+        ? theme.destructive
         : 'transparent';
-  const fg = variant === 'secondary' ? theme.colors.primary : '#fff';
-  const border = variant === 'secondary' ? theme.colors.primary : 'transparent';
+  const fg = variant === 'secondary' ? theme.accent : theme.buttonText;
+  const border = variant === 'secondary' ? theme.accent : 'transparent';
 
   return (
     <Pressable
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   btn: {
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.icon,
     borderWidth: 1,
     alignItems: 'center',
   },

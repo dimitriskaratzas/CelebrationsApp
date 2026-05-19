@@ -1,18 +1,37 @@
-import { Stack } from 'expo-router';
+import {
+  Manrope_500Medium,
+  Manrope_600SemiBold,
+  Manrope_700Bold,
+  Manrope_800ExtraBold,
+} from '@expo-google-fonts/manrope';
+import {
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+  useFonts,
+} from '@expo-google-fonts/plus-jakarta-sans';
+import { Stack, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AuthProvider, useAuth } from '@/features/auth/hooks/useAuth';
 import { SyncProvider } from '@/lib/sync/SyncProvider';
 import { BootingScreen } from '@/lib/ui/BootingScreen';
+import { theme } from '@/lib/ui/theme';
+
+// Keep the splash visible until fonts are loaded so the first render doesn't flash
+// system-font glyphs in place of the design's Plus Jakarta Sans / Manrope.
+SplashScreen.preventAutoHideAsync().catch(() => {
+  // No-op if the splash has already been hidden by another caller.
+});
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-// Expo Router convention: exporting `ErrorBoundary` from a layout makes that boundary
-// catch render errors in any descendant route, with a "retry" prop that re-renders the
-// subtree instead of white-screening the whole app.
 export function ErrorBoundary({ error, retry }: { error: Error; retry: () => void }) {
   return (
     <View style={styles.fallback}>
@@ -50,6 +69,30 @@ function RootGate() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
+    Manrope_500Medium,
+    Manrope_600SemiBold,
+    Manrope_700Bold,
+    Manrope_800ExtraBold,
+  });
+
+  useEffect(() => {
+    // Hide the splash once fonts have either loaded or hard-errored — don't block boot forever
+    // on a font fetch failure on first install.
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
     <AuthProvider>
       <RootGate />
@@ -64,7 +107,7 @@ const styles = StyleSheet.create({
   fallbackMessage: { color: '#666', textAlign: 'center' },
   fallbackRetry: {
     marginTop: 12,
-    backgroundColor: '#1565c0',
+    backgroundColor: theme.accent,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
