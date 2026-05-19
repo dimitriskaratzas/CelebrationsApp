@@ -1,13 +1,19 @@
-import { addYears, differenceInCalendarDays, isAfter, startOfDay } from 'date-fns';
+import { differenceInCalendarDays, startOfDay } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useFavorites } from '@/features/favorites/hooks/useFavorites';
 import type { Favorite } from '@/features/favorites/db/favorites.repo';
 
-import { CATALOG, findByKey, type NamedayEntry } from '../namedays/catalog';
-import { resolveEasterOffsetCelebrations } from '../namedays/easter';
+import { CATALOG } from '../namedays/catalog';
+import {
+  namedayDateForYear,
+  nextNamedayDate,
+  nextOccurrenceOf,
+  parseBirthDate,
+  type CelebrationKind,
+} from '../lib/nextCelebration';
 
-export type CelebrationKind = 'nameday' | 'birthday';
+export type { CelebrationKind };
 
 export interface TodayItem {
   id: string;
@@ -34,35 +40,6 @@ interface UseTodayList {
 
 const UPCOMING_DAYS = 7;
 const UPCOMING_CAP = 10;
-
-function namedayDateForYear(entry: NamedayEntry, year: number): Date | null {
-  if (entry.celebration.type === 'fixed') {
-    return new Date(year, entry.celebration.month - 1, entry.celebration.day);
-  }
-  const map = resolveEasterOffsetCelebrations(year);
-  return map.get(entry.nameday_key) ?? null;
-}
-
-function nextOccurrenceOf(monthDay: { month: number; day: number }, today: Date): Date {
-  const thisYear = new Date(today.getFullYear(), monthDay.month - 1, monthDay.day);
-  if (isAfter(today, thisYear) && differenceInCalendarDays(thisYear, today) < 0) {
-    return new Date(today.getFullYear() + 1, monthDay.month - 1, monthDay.day);
-  }
-  return thisYear;
-}
-
-function nextNamedayDate(entry: NamedayEntry, today: Date): Date | null {
-  const thisYear = namedayDateForYear(entry, today.getFullYear());
-  if (!thisYear) return null;
-  if (differenceInCalendarDays(thisYear, today) >= 0) return thisYear;
-  return namedayDateForYear(entry, today.getFullYear() + 1);
-}
-
-function parseBirthDate(value: string): { month: number; day: number; year: number } | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!m) return null;
-  return { year: Number(m[1]), month: Number(m[2]), day: Number(m[3]) };
-}
 
 export function useTodayList(today: Date): UseTodayList {
   const { favorites, loading } = useFavorites();
@@ -92,7 +69,7 @@ export function useTodayList(today: Date): UseTodayList {
 
     for (const fav of favorites) {
       if (fav.namedayKey) {
-        const entry = findByKey(fav.namedayKey);
+        const entry = CATALOG.find((e) => e.nameday_key === fav.namedayKey);
         if (entry) {
           const date = nextNamedayDate(entry, todayStart);
           if (date) {
