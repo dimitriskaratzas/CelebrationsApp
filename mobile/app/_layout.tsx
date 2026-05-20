@@ -37,7 +37,7 @@ export function ErrorBoundary({ error, retry }: { error: Error; retry: () => voi
     <View style={styles.fallback}>
       <Text style={styles.fallbackTitle}>Κάτι πήγε στραβά</Text>
       <Text style={styles.fallbackMessage}>{error.message}</Text>
-      <Pressable style={styles.fallbackRetry} onPress={retry}>
+      <Pressable style={({ pressed }) => [styles.fallbackRetry, pressed && styles.fallbackPressed]} onPress={retry}>
         <Text style={styles.fallbackRetryText}>Δοκίμασε ξανά</Text>
       </Pressable>
     </View>
@@ -57,7 +57,21 @@ function RootGate() {
 
   return (
     <SyncProvider>
-      <Stack>
+      <Stack
+        screenOptions={{
+          // Aegean Noon header chrome — matches the screens' gradient top, so the
+          // header reads as part of the page rather than a separate Material bar.
+          headerStyle: { backgroundColor: theme.bgTop },
+          headerShadowVisible: false,
+          headerTintColor: theme.accent,
+          headerTitleStyle: {
+            fontFamily: 'PlusJakartaSans_700Bold',
+            fontSize: 17,
+            color: theme.ink,
+          },
+          headerBackTitle: '',
+        }}
+      >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="favorite/new" options={{ title: 'Νέο αγαπημένο' }} />
         <Stack.Screen name="favorite/[id]" options={{ title: 'Επεξεργασία' }} />
@@ -102,15 +116,39 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
-  fallback: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
-  fallbackTitle: { fontSize: 18, fontWeight: '600', textAlign: 'center' },
-  fallbackMessage: { color: '#666', textAlign: 'center' },
+  fallback: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 28,
+    gap: 12,
+    backgroundColor: theme.bgTop,
+  },
+  fallbackTitle: {
+    fontFamily: 'PlusJakartaSans_700Bold',
+    fontSize: 20,
+    color: theme.ink,
+    textAlign: 'center',
+  },
+  fallbackMessage: {
+    fontFamily: 'Manrope_500Medium',
+    fontSize: 14,
+    lineHeight: 21,
+    color: theme.muted,
+    textAlign: 'center',
+    maxWidth: 320,
+  },
   fallbackRetry: {
     marginTop: 12,
     backgroundColor: theme.accent,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 99,
   },
-  fallbackRetryText: { color: '#fff', fontWeight: '600' },
+  fallbackPressed: { opacity: 0.85 },
+  fallbackRetryText: {
+    fontFamily: 'Manrope_800ExtraBold',
+    fontSize: 14,
+    color: '#fff',
+  },
 });

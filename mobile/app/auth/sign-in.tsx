@@ -1,10 +1,17 @@
-import { EmptyState } from '@/lib/ui/EmptyState';
+import { ComingSoonScreen } from '@/features/auth/components/ComingSoonScreen';
 
 export default function SignInStub() {
   return (
-    <EmptyState
-      title="Σύντομα κοντά σας"
-      message="Η σύνδεση θα προστεθεί στη Φάση 4."
+    <ComingSoonScreen
+      icon="log-in-outline"
+      eyebrow="ΣΥΝΔΕΣΗ"
+      title="Καλωσήρθες πίσω."
+      lede="Η σύνδεση με email θα είναι έτοιμη στη Φάση 4 — μαζί με τη συγχρονισμένη γιορτή σε όλες τις συσκευές σου."
+      bullets={[
+        'Σύνδεση με email & κωδικό',
+        'Επαναφορά κωδικού',
+        'Πολλαπλές συσκευές, ίδια αγαπημένα',
+      ]}
     />
   );
 }

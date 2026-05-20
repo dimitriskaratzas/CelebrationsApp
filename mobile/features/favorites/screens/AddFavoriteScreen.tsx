@@ -10,6 +10,8 @@ export function AddFavoriteScreen() {
   const router = useRouter();
   return (
     <FavoriteForm
+      eyebrow="ΝΕΟ ΑΓΑΠΗΜΕΝΟ"
+      title="Πες μας ποιον/ποιαν να θυμάμαστε"
       saveLabel="Αποθήκευση"
       onSubmit={async (input) => {
         const count = await repo.countLive();
