@@ -7,7 +7,6 @@ import { useRouter } from 'expo-router';
 import * as Updates from 'expo-updates';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   StatusBar,
@@ -19,22 +18,9 @@ import {
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSync } from '@/lib/sync/SyncProvider';
 import { Banner } from '@/lib/ui/Banner';
-import { shadow, spacing, theme, typography } from '@/lib/ui/theme';
+import { spacing, theme, typography } from '@/lib/ui/theme';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
-
-interface PricingTier {
-  label: string;
-  price: string;
-  cadence: string;
-  highlighted?: boolean;
-}
-
-const PRICING: PricingTier[] = [
-  { label: 'Μηνιαίο', price: '1,99 €', cadence: '/μήνα' },
-  { label: 'Ετήσιο', price: '9,99 €', cadence: '/έτος', highlighted: true },
-  { label: 'Εφάπαξ', price: '19,99 €', cadence: 'μία φορά' },
-];
 
 export function SettingsScreen() {
   const router = useRouter();
@@ -44,13 +30,6 @@ export function SettingsScreen() {
   const lastSyncLabel = lastSyncedAt
     ? format(new Date(lastSyncedAt), "EEEE d MMMM, HH:mm", { locale: el })
     : 'Ποτέ';
-
-  const onPickPremium = (tier: PricingTier) => {
-    Alert.alert(
-      'Σύντομα κοντά σας',
-      `Το ${tier.label.toLowerCase()} (${tier.price}) θα είναι διαθέσιμο σε μελλοντική έκδοση.`,
-    );
-  };
 
   return (
     <View style={styles.screen}>
@@ -66,51 +45,6 @@ export function SettingsScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>Ρυθμίσεις</Text>
         </View>
-
-        {/* Premium card (mock) */}
-        <LinearGradient
-          colors={['#1f1305', '#2b1c0a']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.premiumCard, shadow.card]}
-        >
-          <Text style={styles.premiumEyebrow}>CELEBRATIONS PREMIUM</Text>
-          <Text style={styles.premiumHeadline}>Ξεκλείδωσε όλες τις γιορτές.</Text>
-          <Text style={styles.premiumLede}>
-            Απεριόριστα αγαπημένα, ευχές με AI, ειδοποιήσεις 24 ώρες πριν.
-          </Text>
-          <View style={styles.pricingRow}>
-            {PRICING.map((tier) => (
-              <Pressable
-                key={tier.label}
-                onPress={() => onPickPremium(tier)}
-                style={({ pressed }) => [
-                  styles.priceTile,
-                  tier.highlighted && styles.priceTileHighlight,
-                  pressed && styles.pressedSubtle,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.priceLabel,
-                    tier.highlighted && styles.priceLabelHighlight,
-                  ]}
-                >
-                  {tier.label}
-                </Text>
-                <Text
-                  style={[
-                    styles.pricePrice,
-                    tier.highlighted && styles.pricePriceHighlight,
-                  ]}
-                >
-                  {tier.price}
-                </Text>
-                <Text style={styles.priceCadence}>{tier.cadence}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </LinearGradient>
 
         {/* Account */}
         <SettingsGroup title="Λογαριασμός">
@@ -274,75 +208,6 @@ const styles = StyleSheet.create({
     color: theme.ink,
   },
 
-  // Premium
-  premiumCard: {
-    marginHorizontal: spacing.screen,
-    borderRadius: theme.radius.card,
-    padding: spacing.xl,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 201, 60, 0.55)',
-  },
-  premiumEyebrow: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 11,
-    letterSpacing: 1.6,
-    color: theme.gold,
-  },
-  premiumHeadline: {
-    marginTop: spacing.sm,
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 26,
-    lineHeight: 30,
-    letterSpacing: -0.3,
-    color: '#fff',
-  },
-  premiumLede: {
-    marginTop: 6,
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 13,
-    lineHeight: 19,
-    color: 'rgba(255,255,255,0.78)',
-  },
-  pricingRow: {
-    marginTop: spacing.lg,
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  priceTile: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    alignItems: 'center',
-    gap: 2,
-  },
-  priceTileHighlight: {
-    borderColor: theme.gold,
-    backgroundColor: 'rgba(255,201,60,0.10)',
-  },
-  priceLabel: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 11,
-    letterSpacing: 1,
-    color: 'rgba(255,255,255,0.7)',
-    textTransform: 'uppercase',
-  },
-  priceLabelHighlight: { color: theme.gold },
-  pricePrice: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 17,
-    color: '#fff',
-  },
-  pricePriceHighlight: { color: theme.gold },
-  priceCadence: {
-    fontFamily: 'Manrope_500Medium',
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.55)',
-  },
-
   // Setting groups
   group: { marginTop: spacing.lg, marginHorizontal: spacing.screen, gap: spacing.sm },
   groupTitle: {
@@ -404,5 +269,4 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
-  pressedSubtle: { opacity: 0.8 },
 });
