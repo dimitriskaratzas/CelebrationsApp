@@ -1,247 +1,135 @@
 [
-  {
-    "nameday_key": "georgios",
-    "primary_form": "Γιώργος",
-    "all_forms_normalized": ["γιωργοσ", "γεωργιοσ", "γιωργια", "γεωργια", "georgios", "giorgos", "giorgia"],
-    "celebration": { "type": "fixed", "month": 4, "day": 23 },
-    "saint": "Άγιος Γεώργιος"
-  },
-  {
-    "nameday_key": "maria",
-    "primary_form": "Μαρία",
-    "all_forms_normalized": ["μαρια", "μαριαμ", "μαριω", "maria", "mary"],
-    "celebration": { "type": "fixed", "month": 8, "day": 15 },
-    "saint": "Κοίμηση της Θεοτόκου"
-  },
-  {
-    "nameday_key": "ioannis",
-    "primary_form": "Ιωάννης",
-    "all_forms_normalized": ["ιωαννησ", "γιαννησ", "γιανησ", "ioannis", "giannis", "yannis", "jannis", "ioanna", "ιωαννα"],
-    "celebration": { "type": "fixed", "month": 1, "day": 7 },
-    "saint": "Σύναξις Ιωάννου του Προδρόμου"
-  },
-  {
-    "nameday_key": "dimitrios",
-    "primary_form": "Δημήτρης",
-    "all_forms_normalized": ["δημητρησ", "δημητριοσ", "δημητρα", "dimitris", "dimitrios", "jim", "jimmy"],
-    "celebration": { "type": "fixed", "month": 10, "day": 26 },
-    "saint": "Άγιος Δημήτριος"
-  },
-  {
-    "nameday_key": "nikolaos",
-    "primary_form": "Νικόλαος",
-    "all_forms_normalized": ["νικολαοσ", "νικοσ", "νικη", "νικολετα", "nikolaos", "nikos", "nick", "nicky"],
-    "celebration": { "type": "fixed", "month": 12, "day": 6 },
-    "saint": "Άγιος Νικόλαος"
-  },
-  {
-    "nameday_key": "konstantinos_eleni",
-    "primary_form": "Κωνσταντίνος / Ελένη",
-    "all_forms_normalized": ["κωνσταντινοσ", "κωστασ", "κωνσταντινα", "ελενη", "konstantinos", "kostas", "eleni", "helen"],
-    "celebration": { "type": "fixed", "month": 5, "day": 21 },
-    "saint": "Άγιοι Κωνσταντίνος και Ελένη"
-  },
-  {
-    "nameday_key": "panagiotis",
-    "primary_form": "Παναγιώτης",
-    "all_forms_normalized": ["παναγιωτησ", "παναγιωτα", "γιωτα", "panagiotis", "panos", "giota", "yota"],
-    "celebration": { "type": "fixed", "month": 8, "day": 15 },
-    "saint": "Κοίμηση της Θεοτόκου"
-  },
-  {
-    "nameday_key": "vasileios",
-    "primary_form": "Βασίλης",
-    "all_forms_normalized": ["βασιλησ", "βασιλειοσ", "βασιλικη", "vasilis", "vasileios", "vassilis", "vasiliki"],
-    "celebration": { "type": "fixed", "month": 1, "day": 1 },
-    "saint": "Μέγας Βασίλειος"
-  },
-  {
-    "nameday_key": "athanasios",
-    "primary_form": "Αθανάσιος",
-    "all_forms_normalized": ["αθανασιοσ", "θανασησ", "αθανασια", "athanasios", "thanasis", "thanos"],
-    "celebration": { "type": "fixed", "month": 1, "day": 18 },
-    "saint": "Άγιος Αθανάσιος"
-  },
-  {
-    "nameday_key": "christos",
-    "primary_form": "Χρήστος",
-    "all_forms_normalized": ["χρηστοσ", "χρηστινα", "christos", "christina"],
-    "celebration": { "type": "fixed", "month": 7, "day": 24 },
-    "saint": "Αγία Χριστίνα"
-  },
-  {
-    "nameday_key": "andreas",
-    "primary_form": "Ανδρέας",
-    "all_forms_normalized": ["ανδρεασ", "andreas", "andrew"],
-    "celebration": { "type": "fixed", "month": 11, "day": 30 },
-    "saint": "Άγιος Ανδρέας"
-  },
-  {
-    "nameday_key": "petros_pavlos",
-    "primary_form": "Πέτρος / Παύλος",
-    "all_forms_normalized": ["πετροσ", "παυλοσ", "petros", "pavlos", "peter", "paul"],
-    "celebration": { "type": "fixed", "month": 6, "day": 29 },
-    "saint": "Άγιοι Πέτρος και Παύλος"
-  },
-  {
-    "nameday_key": "stefanos",
-    "primary_form": "Στέφανος",
-    "all_forms_normalized": ["στεφανοσ", "στεφανια", "stefanos", "stephania", "stevie"],
-    "celebration": { "type": "fixed", "month": 12, "day": 27 },
-    "saint": "Άγιος Στέφανος"
-  },
-  {
-    "nameday_key": "spyridon",
-    "primary_form": "Σπυρίδων",
-    "all_forms_normalized": ["σπυριδων", "σπυροσ", "σπυριδουλα", "spyridon", "spyros"],
-    "celebration": { "type": "fixed", "month": 12, "day": 12 },
-    "saint": "Άγιος Σπυρίδων"
-  },
-  {
-    "nameday_key": "sofia",
-    "primary_form": "Σοφία",
-    "all_forms_normalized": ["σοφια", "sofia", "sophia"],
-    "celebration": { "type": "fixed", "month": 9, "day": 17 },
-    "saint": "Αγία Σοφία"
-  },
-  {
-    "nameday_key": "ekaterini",
-    "primary_form": "Αικατερίνη",
-    "all_forms_normalized": ["αικατερινη", "κατερινα", "κατινα", "katerina", "katherine", "kate"],
-    "celebration": { "type": "fixed", "month": 11, "day": 25 },
-    "saint": "Αγία Αικατερίνη"
-  },
-  {
-    "nameday_key": "antonios",
-    "primary_form": "Αντώνιος",
-    "all_forms_normalized": ["αντωνιοσ", "αντωνησ", "αντωνια", "antonios", "antonis", "tonia", "anthony"],
-    "celebration": { "type": "fixed", "month": 1, "day": 17 },
-    "saint": "Άγιος Αντώνιος"
-  },
-  {
-    "nameday_key": "ilias",
-    "primary_form": "Ηλίας",
-    "all_forms_normalized": ["ηλιασ", "ilias", "elias", "lia"],
-    "celebration": { "type": "fixed", "month": 7, "day": 20 },
-    "saint": "Προφήτης Ηλίας"
-  },
-  {
-    "nameday_key": "eirini",
-    "primary_form": "Ειρήνη",
-    "all_forms_normalized": ["ειρηνη", "ρενα", "eirini", "irene", "rena"],
-    "celebration": { "type": "fixed", "month": 5, "day": 5 },
-    "saint": "Αγία Ειρήνη"
-  },
-  {
-    "nameday_key": "charalampos",
-    "primary_form": "Χαράλαμπος",
-    "all_forms_normalized": ["χαραλαμποσ", "μπαμπησ", "charalampos", "babis"],
-    "celebration": { "type": "fixed", "month": 2, "day": 10 },
-    "saint": "Άγιος Χαράλαμπος"
-  },
-  {
-    "nameday_key": "michail_gavriil",
-    "primary_form": "Μιχάλης / Γαβριήλ",
-    "all_forms_normalized": ["μιχαηλ", "μιχαλησ", "γαβριηλ", "michael", "michalis", "gabriel"],
-    "celebration": { "type": "fixed", "month": 11, "day": 8 },
-    "saint": "Σύναξη των Αρχαγγέλων Μιχαήλ και Γαβριήλ"
-  },
-  {
-    "nameday_key": "paraskevi",
-    "primary_form": "Παρασκευή",
-    "all_forms_normalized": ["παρασκευη", "βιβη", "paraskevi", "vivi"],
-    "celebration": { "type": "fixed", "month": 7, "day": 26 },
-    "saint": "Αγία Παρασκευή"
-  },
-  {
-    "nameday_key": "alexandros",
-    "primary_form": "Αλέξανδρος",
-    "all_forms_normalized": ["αλεξανδροσ", "αλεκοσ", "αλεξανδρα", "alexandros", "alex", "alekos", "alexandra"],
-    "celebration": { "type": "fixed", "month": 5, "day": 21 },
-    "saint": "Άγιοι Κωνσταντίνος και Ελένη"
-  },
-  {
-    "nameday_key": "euaggelos",
-    "primary_form": "Ευάγγελος / Ευαγγελία",
-    "all_forms_normalized": ["ευαγγελοσ", "βαγγελησ", "ευαγγελια", "evangelos", "vaggelis", "evangelia"],
-    "celebration": { "type": "fixed", "month": 3, "day": 25 },
-    "saint": "Ευαγγελισμός της Θεοτόκου"
-  },
-  {
-    "nameday_key": "theodoros",
-    "primary_form": "Θεόδωρος",
-    "all_forms_normalized": ["θεοδωροσ", "τεο", "θεοδωρα", "theodoros", "teo", "theodora"],
-    "celebration": { "type": "fixed", "month": 2, "day": 17 },
-    "saint": "Άγιος Θεόδωρος Τήρων"
-  },
-  {
-    "nameday_key": "anastasios",
-    "primary_form": "Αναστάσης / Αναστασία",
-    "all_forms_normalized": ["αναστασιοσ", "αναστασησ", "τασοσ", "αναστασια", "anastasios", "tasos", "anastasia"],
-    "celebration": { "type": "easter_offset", "offset": 0 },
-    "saint": "Πάσχα"
-  },
-  {
-    "nameday_key": "thomas",
-    "primary_form": "Θωμάς",
-    "all_forms_normalized": ["θωμασ", "thomas", "tom"],
-    "celebration": { "type": "easter_offset", "offset": 7 },
-    "saint": "Κυριακή του Θωμά"
-  },
-  {
-    "nameday_key": "lampros",
-    "primary_form": "Λάμπρος",
-    "all_forms_normalized": ["λαμπροσ", "λαμπρινη", "lampros", "lambros", "lambrini"],
-    "celebration": { "type": "easter_offset", "offset": 0 },
-    "saint": "Πάσχα"
-  },
-  {
-    "nameday_key": "fotini",
-    "primary_form": "Φωτεινή",
-    "all_forms_normalized": ["φωτεινη", "φωτησ", "fotini", "fotis"],
-    "celebration": { "type": "fixed", "month": 2, "day": 26 },
-    "saint": "Αγία Φωτεινή η Σαμαρείτιδα"
-  },
-  {
-    "nameday_key": "kyriakos",
-    "primary_form": "Κυριάκος",
-    "all_forms_normalized": ["κυριακοσ", "κυριακη", "kyriakos", "kyriaki"],
-    "celebration": { "type": "fixed", "month": 7, "day": 7 },
-    "saint": "Αγία Κυριακή"
-  },
-  {
-    "nameday_key": "anna",
-    "primary_form": "Άννα",
-    "all_forms_normalized": ["αννα", "anna", "ann"],
-    "celebration": { "type": "fixed", "month": 7, "day": 25 },
-    "saint": "Κοίμηση της Αγίας Άννας"
-  },
-  {
-    "nameday_key": "iakovos",
-    "primary_form": "Ιάκωβος",
-    "all_forms_normalized": ["ιακωβοσ", "iakovos", "jacob", "james"],
-    "celebration": { "type": "fixed", "month": 10, "day": 23 },
-    "saint": "Άγιος Ιάκωβος ο Αδελφόθεος"
-  },
-  {
-    "nameday_key": "markos",
-    "primary_form": "Μάρκος",
-    "all_forms_normalized": ["μαρκοσ", "markos", "mark"],
-    "celebration": { "type": "fixed", "month": 4, "day": 25 },
-    "saint": "Άγιος Μάρκος ο Ευαγγελιστής"
-  },
-  {
-    "nameday_key": "loukas",
-    "primary_form": "Λουκάς",
-    "all_forms_normalized": ["λουκασ", "loukas", "lukas", "luke"],
-    "celebration": { "type": "fixed", "month": 10, "day": 18 },
-    "saint": "Άγιος Λουκάς ο Ευαγγελιστής"
-  },
-  {
-    "nameday_key": "matthaios",
-    "primary_form": "Ματθαίος",
-    "all_forms_normalized": ["ματθαιοσ", "matthaios", "matthew"],
-    "celebration": { "type": "fixed", "month": 11, "day": 16 },
-    "saint": "Άγιος Ματθαίος ο Ευαγγελιστής"
-  }
+  { "nameday_key": "vasileios",       "primary_form": "Βασίλης / Βασιλική",         "all_forms_normalized": ["βασιλησ","βασιλειοσ","βασιλικη","βασω","vasilis","vasileios","vassilis","vasiliki","basil"],                       "celebration": { "type": "fixed", "month": 1,  "day": 1  }, "saint": "Μέγας Βασίλειος" },
+  { "nameday_key": "fotis_fotini",    "primary_form": "Φώτης / Φωτεινή",            "all_forms_normalized": ["φωτησ","φωτιοσ","φωτεινη","φωτω","φωφω","fotis","fotini","photis","fofo"],                                       "celebration": { "type": "fixed", "month": 1,  "day": 6  }, "saint": "Θεοφάνεια" },
+  { "nameday_key": "ioannis",         "primary_form": "Ιωάννης / Γιάννης",          "all_forms_normalized": ["ιωαννησ","γιαννησ","γιανησ","γιαννα","ιωαννα","ναννα","ioannis","giannis","yannis","jannis","ioanna","john"], "celebration": { "type": "fixed", "month": 1,  "day": 7  }, "saint": "Σύναξις Ιωάννου του Προδρόμου" },
+  { "nameday_key": "domna",           "primary_form": "Δόμνα",                       "all_forms_normalized": ["δομνα","domna"],                                                                                              "celebration": { "type": "fixed", "month": 1,  "day": 11 }, "saint": "Αγία Δόμνα" },
+  { "nameday_key": "tatiana",         "primary_form": "Τατιανή",                     "all_forms_normalized": ["τατιανη","τατιανα","tatiana","tatiani"],                                                                       "celebration": { "type": "fixed", "month": 1,  "day": 12 }, "saint": "Αγία Τατιανή" },
+  { "nameday_key": "antonios",        "primary_form": "Αντώνης / Αντωνία",          "all_forms_normalized": ["αντωνιοσ","αντωνησ","αντωνια","τονια","antonios","antonis","tonia","anthony"],                                "celebration": { "type": "fixed", "month": 1,  "day": 17 }, "saint": "Άγιος Αντώνιος ο Μέγας" },
+  { "nameday_key": "athanasios",      "primary_form": "Θανάσης / Αθανασία",         "all_forms_normalized": ["αθανασιοσ","θανασησ","αθανασια","νασια","athanasios","thanasis","thanos","athan"],                          "celebration": { "type": "fixed", "month": 1,  "day": 18 }, "saint": "Άγιος Αθανάσιος" },
+  { "nameday_key": "efthymios",       "primary_form": "Ευθύμιος / Ευθυμία",         "all_forms_normalized": ["ευθυμιοσ","θυμιοσ","ευθυμια","efthymios","thymios","efthymia"],                                            "celebration": { "type": "fixed", "month": 1,  "day": 20 }, "saint": "Άγιος Ευθύμιος ο Μέγας" },
+  { "nameday_key": "agnes",           "primary_form": "Αγνή",                        "all_forms_normalized": ["αγνη","agnes","agni"],                                                                                          "celebration": { "type": "fixed", "month": 1,  "day": 21 }, "saint": "Αγία Αγνή" },
+  { "nameday_key": "timotheos",       "primary_form": "Τιμόθεος",                    "all_forms_normalized": ["τιμοθεοσ","timotheos","timothy"],                                                                              "celebration": { "type": "fixed", "month": 1,  "day": 22 }, "saint": "Άγιος Τιμόθεος" },
+  { "nameday_key": "xeni",            "primary_form": "Ξένη",                        "all_forms_normalized": ["ξενη","xeni"],                                                                                                  "celebration": { "type": "fixed", "month": 1,  "day": 24 }, "saint": "Αγία Ξένη" },
+  { "nameday_key": "grigorios",       "primary_form": "Γρηγόρης / Γρηγορία",        "all_forms_normalized": ["γρηγοριοσ","γρηγορησ","γρηγορια","grigorios","grigoris","gregory"],                                          "celebration": { "type": "fixed", "month": 1,  "day": 25 }, "saint": "Άγιος Γρηγόριος ο Θεολόγος" },
+  { "nameday_key": "xenofon",         "primary_form": "Ξενοφών",                     "all_forms_normalized": ["ξενοφων","xenofon","xenophon"],                                                                                "celebration": { "type": "fixed", "month": 1,  "day": 26 }, "saint": "Άγιος Ξενοφών" },
+  { "nameday_key": "ioannis_chrysostomos", "primary_form": "Χρυσόστομος",           "all_forms_normalized": ["χρυσοστομοσ","chrysostomos"],                                                                                   "celebration": { "type": "fixed", "month": 1,  "day": 27 }, "saint": "Ανακομιδή λειψάνων Αγίου Ιωάννου Χρυσοστόμου" },
+  { "nameday_key": "trion_ierarchon", "primary_form": "Τριών Ιεραρχών",              "all_forms_normalized": ["τριωνιεραρχων"],                                                                                                "celebration": { "type": "fixed", "month": 1,  "day": 30 }, "saint": "Τριών Ιεραρχών" },
+
+  { "nameday_key": "ypapanti",        "primary_form": "Υπαπαντή",                    "all_forms_normalized": ["υπαπαντη","ypapanti"],                                                                                          "celebration": { "type": "fixed", "month": 2,  "day": 2  }, "saint": "Υπαπαντή του Κυρίου" },
+  { "nameday_key": "agatha",          "primary_form": "Αγάθη",                       "all_forms_normalized": ["αγαθη","αγαθοσ","agathi","agatha"],                                                                            "celebration": { "type": "fixed", "month": 2,  "day": 5  }, "saint": "Αγία Αγάθη" },
+  { "nameday_key": "charalampos",     "primary_form": "Χαράλαμπος / Χαρά",          "all_forms_normalized": ["χαραλαμποσ","μπαμπησ","χαρα","charalampos","babis","hara"],                                                  "celebration": { "type": "fixed", "month": 2,  "day": 10 }, "saint": "Άγιος Χαράλαμπος" },
+  { "nameday_key": "vlasios",         "primary_form": "Βλάσιος / Βλασία",            "all_forms_normalized": ["βλασιοσ","βλασησ","βλασια","vlasios","vlasis"],                                                              "celebration": { "type": "fixed", "month": 2,  "day": 11 }, "saint": "Άγιος Βλάσιος" },
+  { "nameday_key": "meletios",        "primary_form": "Μελέτιος",                    "all_forms_normalized": ["μελετιοσ","meletios"],                                                                                          "celebration": { "type": "fixed", "month": 2,  "day": 12 }, "saint": "Άγιος Μελέτιος" },
+  { "nameday_key": "valentinos",      "primary_form": "Βαλεντίνος",                  "all_forms_normalized": ["βαλεντινοσ","βαλεντινη","valentinos","valentine"],                                                            "celebration": { "type": "fixed", "month": 2,  "day": 14 }, "saint": "Άγιος Βαλεντίνος" },
+  { "nameday_key": "theodoros",       "primary_form": "Θεόδωρος / Θεοδώρα",          "all_forms_normalized": ["θεοδωροσ","θοδωρησ","τεοσ","θεοδωρα","theodoros","teo","theodora"],                                          "celebration": { "type": "fixed", "month": 2,  "day": 17 }, "saint": "Άγιος Θεόδωρος ο Τήρων" },
+  { "nameday_key": "philothei",       "primary_form": "Φιλοθέη",                     "all_forms_normalized": ["φιλοθεη","philothei"],                                                                                          "celebration": { "type": "fixed", "month": 2,  "day": 19 }, "saint": "Αγία Φιλοθέη η Αθηναία" },
+  { "nameday_key": "polykarpos",      "primary_form": "Πολύκαρπος",                  "all_forms_normalized": ["πολυκαρποσ","polykarpos"],                                                                                      "celebration": { "type": "fixed", "month": 2,  "day": 23 }, "saint": "Άγιος Πολύκαρπος" },
+  { "nameday_key": "fotini",          "primary_form": "Φωτεινή η Σαμαρείτιδα",       "all_forms_normalized": ["φωτεινη","φωτω","fotini"],                                                                                      "celebration": { "type": "fixed", "month": 2,  "day": 26 }, "saint": "Αγία Φωτεινή η Σαμαρείτιδα" },
+
+  { "nameday_key": "evdokia",         "primary_form": "Ευδοκία",                     "all_forms_normalized": ["ευδοκια","ευδοκιμοσ","evdokia"],                                                                                "celebration": { "type": "fixed", "month": 3,  "day": 1  }, "saint": "Αγία Ευδοκία" },
+  { "nameday_key": "sarantes",        "primary_form": "Σαράντης",                    "all_forms_normalized": ["σαραντησ","σαραντοσ","sarantis"],                                                                                "celebration": { "type": "fixed", "month": 3,  "day": 9  }, "saint": "Άγιοι Τεσσαράκοντα Μάρτυρες" },
+  { "nameday_key": "alexios",         "primary_form": "Αλέξιος",                     "all_forms_normalized": ["αλεξιοσ","αλεξησ","alexios","alexis"],                                                                          "celebration": { "type": "fixed", "month": 3,  "day": 17 }, "saint": "Άγιος Αλέξιος" },
+  { "nameday_key": "evaggelos",       "primary_form": "Ευάγγελος / Ευαγγελία",      "all_forms_normalized": ["ευαγγελοσ","βαγγελησ","ευαγγελια","λια","evangelos","vaggelis","evangelia","angela"],                       "celebration": { "type": "fixed", "month": 3,  "day": 25 }, "saint": "Ευαγγελισμός της Θεοτόκου" },
+
+  { "nameday_key": "maria_aigyptia",  "primary_form": "Μαρία η Αιγυπτία",            "all_forms_normalized": ["μαριααιγυπτια"],                                                                                                "celebration": { "type": "fixed", "month": 4,  "day": 1  }, "saint": "Αγία Μαρία η Αιγυπτία" },
+  { "nameday_key": "georgios",        "primary_form": "Γιώργος / Γεωργία",          "all_forms_normalized": ["γιωργοσ","γεωργιοσ","γιωργια","γεωργια","γιωτα","georgios","giorgos","giorgia","george","yiorgos"],         "celebration": { "type": "fixed", "month": 4,  "day": 23 }, "saint": "Άγιος Γεώργιος" },
+  { "nameday_key": "markos",          "primary_form": "Μάρκος",                      "all_forms_normalized": ["μαρκοσ","markos","mark"],                                                                                       "celebration": { "type": "fixed", "month": 4,  "day": 25 }, "saint": "Άγιος Μάρκος ο Ευαγγελιστής" },
+
+  { "nameday_key": "irini",           "primary_form": "Ειρήνη / Ρένα",              "all_forms_normalized": ["ειρηνη","ρενα","ρηνιω","eirini","irene","rena"],                                                              "celebration": { "type": "fixed", "month": 5,  "day": 5  }, "saint": "Αγία Ειρήνη" },
+  { "nameday_key": "ioannis_theologos","primary_form": "Ιωάννης ο Θεολόγος",         "all_forms_normalized": ["θεολογοσ","theologos"],                                                                                          "celebration": { "type": "fixed", "month": 5,  "day": 8  }, "saint": "Άγιος Ιωάννης ο Θεολόγος" },
+  { "nameday_key": "isidoros",        "primary_form": "Ισίδωρος / Ισιδώρα",          "all_forms_normalized": ["ισιδωροσ","ισιδωρα","isidoros","isidora"],                                                                  "celebration": { "type": "fixed", "month": 5,  "day": 14 }, "saint": "Άγιος Ισίδωρος" },
+  { "nameday_key": "achilleas",       "primary_form": "Αχιλλέας",                    "all_forms_normalized": ["αχιλλεασ","αχιλλεοσ","achilleas","achilles"],                                                                "celebration": { "type": "fixed", "month": 5,  "day": 15 }, "saint": "Άγιος Αχίλλιος" },
+  { "nameday_key": "konstantinos_eleni","primary_form": "Κωνσταντίνος / Ελένη",     "all_forms_normalized": ["κωνσταντινοσ","κωστασ","κωνσταντινα","ελενη","ελενιτσα","νελλη","konstantinos","kostas","eleni","helen"],   "celebration": { "type": "fixed", "month": 5,  "day": 21 }, "saint": "Άγιοι Κωνσταντίνος και Ελένη" },
+  { "nameday_key": "alexandros",      "primary_form": "Αλέξανδρος / Αλεξάνδρα",     "all_forms_normalized": ["αλεξανδροσ","αλεκοσ","αλεξανδρα","αλεξια","alexandros","alex","alekos","alexandra"],                          "celebration": { "type": "fixed", "month": 5,  "day": 21 }, "saint": "Άγιοι Κωνσταντίνος και Ελένη — συγκελεβρώμενος" },
+  { "nameday_key": "theodora",        "primary_form": "Θεοδώρα",                     "all_forms_normalized": ["θεοδωρα","θοδωρα","theodora"],                                                                                "celebration": { "type": "fixed", "month": 5,  "day": 30 }, "saint": "Αγία Θεοδώρα" },
+
+  { "nameday_key": "ioustinos",       "primary_form": "Ιουστίνος / Ιουστίνη",        "all_forms_normalized": ["ιουστινοσ","ιουστινη","ioustinos","justin"],                                                                  "celebration": { "type": "fixed", "month": 6,  "day": 1  }, "saint": "Άγιος Ιουστίνος ο Φιλόσοφος" },
+  { "nameday_key": "kalliopi",        "primary_form": "Καλλιόπη",                    "all_forms_normalized": ["καλλιοπη","kalliopi","kelly"],                                                                                  "celebration": { "type": "fixed", "month": 6,  "day": 8  }, "saint": "Αγία Καλλιόπη" },
+  { "nameday_key": "onisimos",        "primary_form": "Ονήσιμος",                    "all_forms_normalized": ["ονησιμοσ"],                                                                                                     "celebration": { "type": "fixed", "month": 6,  "day": 14 }, "saint": "Άγιος Ονήσιμος" },
+  { "nameday_key": "ioannis_gennesis","primary_form": "Ιωάννης ο Πρόδρομος",         "all_forms_normalized": ["προδρομοσ","prodromos"],                                                                                       "celebration": { "type": "fixed", "month": 6,  "day": 24 }, "saint": "Γενέθλιον Ιωάννου του Προδρόμου" },
+  { "nameday_key": "petros_pavlos",   "primary_form": "Πέτρος / Παύλος",            "all_forms_normalized": ["πετροσ","πετρα","παυλοσ","παυλινα","petros","pavlos","peter","paul"],                                       "celebration": { "type": "fixed", "month": 6,  "day": 29 }, "saint": "Άγιοι Πέτρος και Παύλος" },
+  { "nameday_key": "apostoloi",       "primary_form": "Άγιοι Δώδεκα Απόστολοι",      "all_forms_normalized": ["αποστολοσ","αποστολησ","apostolos","apostolis"],                                                              "celebration": { "type": "fixed", "month": 6,  "day": 30 }, "saint": "Σύναξις Αγίων Δώδεκα Αποστόλων" },
+
+  { "nameday_key": "anargyroi_july",  "primary_form": "Κοσμάς / Δαμιανός (Ιουλίου)", "all_forms_normalized": ["κοσμασιουλιου"],                                                                                                "celebration": { "type": "fixed", "month": 7,  "day": 1  }, "saint": "Άγιοι Ανάργυροι Κοσμάς και Δαμιανός (Ιουλίου)" },
+  { "nameday_key": "kyriaki",         "primary_form": "Κυριάκος / Κυριακή",         "all_forms_normalized": ["κυριακοσ","κυριακη","kyriakos","kyriaki"],                                                                    "celebration": { "type": "fixed", "month": 7,  "day": 7  }, "saint": "Αγία Κυριακή" },
+  { "nameday_key": "prokopios",       "primary_form": "Προκόπης",                    "all_forms_normalized": ["προκοπιοσ","προκοπησ","prokopios","prokopis"],                                                              "celebration": { "type": "fixed", "month": 7,  "day": 8  }, "saint": "Άγιος Προκόπιος" },
+  { "nameday_key": "olga",            "primary_form": "Όλγα",                        "all_forms_normalized": ["ολγα","olga"],                                                                                                  "celebration": { "type": "fixed", "month": 7,  "day": 11 }, "saint": "Αγία Όλγα" },
+  { "nameday_key": "veronika",        "primary_form": "Βερονίκη",                    "all_forms_normalized": ["βερονικη","βερενικη","veronika","veronique"],                                                                "celebration": { "type": "fixed", "month": 7,  "day": 12 }, "saint": "Αγία Βερονίκη" },
+  { "nameday_key": "marina",          "primary_form": "Μαρίνα / Μαρίνος",            "all_forms_normalized": ["μαρινα","μαρινοσ","marina","marinos"],                                                                          "celebration": { "type": "fixed", "month": 7,  "day": 17 }, "saint": "Αγία Μαρίνα" },
+  { "nameday_key": "ilias",           "primary_form": "Ηλίας",                       "all_forms_normalized": ["ηλιασ","λιακοσ","ilias","elias","ilya"],                                                                       "celebration": { "type": "fixed", "month": 7,  "day": 20 }, "saint": "Προφήτης Ηλίας ο Θεσβίτης" },
+  { "nameday_key": "magdalini",       "primary_form": "Μαγδαληνή",                   "all_forms_normalized": ["μαγδαληνη","λενα","magdalini","magdalene"],                                                                  "celebration": { "type": "fixed", "month": 7,  "day": 22 }, "saint": "Αγία Μαρία Μαγδαληνή" },
+  { "nameday_key": "anna",            "primary_form": "Άννα",                        "all_forms_normalized": ["αννα","ανετα","anna","ann"],                                                                                    "celebration": { "type": "fixed", "month": 7,  "day": 25 }, "saint": "Κοίμηση της Αγίας Άννης" },
+  { "nameday_key": "paraskevi",       "primary_form": "Παρασκευή",                   "all_forms_normalized": ["παρασκευη","βιβη","παρασχω","παρη","paraskevi","vivi","paris"],                                            "celebration": { "type": "fixed", "month": 7,  "day": 26 }, "saint": "Αγία Παρασκευή" },
+  { "nameday_key": "panteleimon",     "primary_form": "Παντελής",                    "all_forms_normalized": ["παντελεημων","παντελησ","panteleimon","pantelis"],                                                            "celebration": { "type": "fixed", "month": 7,  "day": 27 }, "saint": "Άγιος Παντελεήμων" },
+
+  { "nameday_key": "metamorfosi",     "primary_form": "Σωτήρης / Σωτηρία",          "all_forms_normalized": ["σωτηρησ","σωτηριοσ","σωτηρια","sotiris","sotiria"],                                                          "celebration": { "type": "fixed", "month": 8,  "day": 6  }, "saint": "Μεταμόρφωσις του Σωτήρος" },
+  { "nameday_key": "myron",           "primary_form": "Μύρων",                       "all_forms_normalized": ["μυρων","myron"],                                                                                                "celebration": { "type": "fixed", "month": 8,  "day": 8  }, "saint": "Άγιος Μύρων" },
+  { "nameday_key": "panagia",         "primary_form": "Μαρία / Παναγιώτης / Δέσποινα","all_forms_normalized": ["μαρια","μαριαμ","μαιρη","παναγιωτησ","παναγιωτα","γιωτα","πανοσ","δεσποινα","δεσπω","μαριοσ","παναγησ","παγωνα","maria","panagiotis","panos","yota","despoina","marios"], "celebration": { "type": "fixed", "month": 8,  "day": 15 }, "saint": "Κοίμηση της Θεοτόκου" },
+  { "nameday_key": "titos",           "primary_form": "Τίτος",                       "all_forms_normalized": ["τιτοσ","titos"],                                                                                                "celebration": { "type": "fixed", "month": 8,  "day": 25 }, "saint": "Άγιος Τίτος" },
+  { "nameday_key": "natalia",         "primary_form": "Ναταλία",                     "all_forms_normalized": ["ναταλια","νατασα","natalia","natasha"],                                                                       "celebration": { "type": "fixed", "month": 8,  "day": 26 }, "saint": "Αγία Ναταλία" },
+  { "nameday_key": "ioannis_apotomi", "primary_form": "Ιωάννης ο Πρόδρομος",         "all_forms_normalized": ["ιωαννησπροδρομοσ"],                                                                                            "celebration": { "type": "fixed", "month": 8,  "day": 29 }, "saint": "Αποτομή κεφαλής Ιωάννου του Προδρόμου" },
+  { "nameday_key": "alexandros_aug",  "primary_form": "Αλέξανδρος ο Πατριάρχης",     "all_forms_normalized": ["αλεξανδροσπατριαρχησ"],                                                                                        "celebration": { "type": "fixed", "month": 8,  "day": 30 }, "saint": "Άγιος Αλέξανδρος ο Πατριάρχης" },
+
+  { "nameday_key": "symeon",          "primary_form": "Συμεών",                      "all_forms_normalized": ["συμεων","symeon","simeon"],                                                                                      "celebration": { "type": "fixed", "month": 9,  "day": 1  }, "saint": "Άγιος Συμεών ο Στυλίτης" },
+  { "nameday_key": "mamas",           "primary_form": "Μάμας",                       "all_forms_normalized": ["μαμασ","mamas"],                                                                                                "celebration": { "type": "fixed", "month": 9,  "day": 2  }, "saint": "Άγιος Μάμας" },
+  { "nameday_key": "anthimos",        "primary_form": "Άνθιμος",                     "all_forms_normalized": ["ανθιμοσ","anthimos"],                                                                                            "celebration": { "type": "fixed", "month": 9,  "day": 3  }, "saint": "Άγιος Άνθιμος" },
+  { "nameday_key": "ermioni",         "primary_form": "Ερμιόνη",                     "all_forms_normalized": ["ερμιονη","ermioni"],                                                                                            "celebration": { "type": "fixed", "month": 9,  "day": 4  }, "saint": "Αγία Ερμιόνη" },
+  { "nameday_key": "zacharias",       "primary_form": "Ζαχαρίας",                    "all_forms_normalized": ["ζαχαριασ","zacharias","zachary"],                                                                              "celebration": { "type": "fixed", "month": 9,  "day": 5  }, "saint": "Προφήτης Ζαχαρίας" },
+  { "nameday_key": "genesis_theotokou","primary_form": "Δέσποινα / Δήμητρα",        "all_forms_normalized": ["δημητρα","ντινα","despoina","dimitra"],                                                                       "celebration": { "type": "fixed", "month": 9,  "day": 8  }, "saint": "Γενέθλιον της Θεοτόκου" },
+  { "nameday_key": "ioakeim_anna",    "primary_form": "Ιωακείμ",                     "all_forms_normalized": ["ιωακειμ","ioakim"],                                                                                              "celebration": { "type": "fixed", "month": 9,  "day": 9  }, "saint": "Άγιοι Ιωακείμ και Άννα" },
+  { "nameday_key": "stavros",         "primary_form": "Σταύρος / Σταυρούλα",         "all_forms_normalized": ["σταυροσ","σταυρουλα","stavros","stavroula"],                                                                "celebration": { "type": "fixed", "month": 9,  "day": 14 }, "saint": "Ύψωση του Τιμίου Σταυρού" },
+  { "nameday_key": "sofia",           "primary_form": "Σοφία / Πίστη / Ελπίδα / Αγάπη","all_forms_normalized": ["σοφια","πιστη","ελπιδα","αγαπη","σοφιανα","sofia","sophia","elpida","agapi"],                          "celebration": { "type": "fixed", "month": 9,  "day": 17 }, "saint": "Αγία Σοφία και οι τρεις θυγατέρες της" },
+  { "nameday_key": "evstathios",      "primary_form": "Ευστάθιος / Στάθης",          "all_forms_normalized": ["ευσταθιοσ","σταθησ","ευσταθια","stathis","efstathios"],                                                    "celebration": { "type": "fixed", "month": 9,  "day": 20 }, "saint": "Άγιος Ευστάθιος" },
+  { "nameday_key": "fokas",           "primary_form": "Φωκάς",                       "all_forms_normalized": ["φωκασ","fokas"],                                                                                                "celebration": { "type": "fixed", "month": 9,  "day": 22 }, "saint": "Άγιος Φωκάς" },
+  { "nameday_key": "thekla",          "primary_form": "Θέκλα",                       "all_forms_normalized": ["θεκλα","thekla"],                                                                                                "celebration": { "type": "fixed", "month": 9,  "day": 24 }, "saint": "Αγία Θέκλα" },
+  { "nameday_key": "ioannis_metastasi","primary_form": "Ιωάννης ο Θεολόγος",         "all_forms_normalized": ["θεολογοσμεταστασισ"],                                                                                          "celebration": { "type": "fixed", "month": 9,  "day": 26 }, "saint": "Μετάστασις Αγίου Ιωάννου του Θεολόγου" },
+
+  { "nameday_key": "anania",          "primary_form": "Ανανίας",                     "all_forms_normalized": ["ανανιασ","ananias"],                                                                                            "celebration": { "type": "fixed", "month": 10, "day": 1  }, "saint": "Άγιος Ανανίας ο Απόστολος" },
+  { "nameday_key": "kyprianos_ioustini","primary_form": "Κυπριανός / Ιουστίνη",      "all_forms_normalized": ["κυπριανοσ","kyprianos"],                                                                                        "celebration": { "type": "fixed", "month": 10, "day": 2  }, "saint": "Άγιοι Κυπριανός και Ιουστίνη" },
+  { "nameday_key": "dionysios",       "primary_form": "Διονύσιος / Διονυσία",        "all_forms_normalized": ["διονυσιοσ","διονυσησ","ντενησ","διονυσια","dionysios","dennis"],                                            "celebration": { "type": "fixed", "month": 10, "day": 3  }, "saint": "Άγιος Διονύσιος ο Αρεοπαγίτης" },
+  { "nameday_key": "thomas_fixed",    "primary_form": "Θωμάς",                       "all_forms_normalized": ["θωμα"],                                                                                                          "celebration": { "type": "fixed", "month": 10, "day": 6  }, "saint": "Άγιος Θωμάς ο Απόστολος (σταθερή μνήμη)" },
+  { "nameday_key": "pelagia",         "primary_form": "Πελαγία",                     "all_forms_normalized": ["πελαγια","pelagia"],                                                                                            "celebration": { "type": "fixed", "month": 10, "day": 8  }, "saint": "Αγία Πελαγία" },
+  { "nameday_key": "filippos",        "primary_form": "Φίλιππος",                    "all_forms_normalized": ["φιλιπποσ","philippos","philip"],                                                                                "celebration": { "type": "fixed", "month": 10, "day": 11 }, "saint": "Άγιος Φίλιππος ο Απόστολος" },
+  { "nameday_key": "loukas",          "primary_form": "Λουκάς",                      "all_forms_normalized": ["λουκασ","loukas","lukas","luke"],                                                                                "celebration": { "type": "fixed", "month": 10, "day": 18 }, "saint": "Άγιος Λουκάς ο Ευαγγελιστής" },
+  { "nameday_key": "artemios",        "primary_form": "Αρτέμιος / Άρτεμις",          "all_forms_normalized": ["αρτεμιοσ","αρτεμησ","αρτεμισ","artemios","artemis"],                                                          "celebration": { "type": "fixed", "month": 10, "day": 20 }, "saint": "Άγιος Αρτέμιος" },
+  { "nameday_key": "iakovos",         "primary_form": "Ιάκωβος",                     "all_forms_normalized": ["ιακωβοσ","iakovos","jacob","james"],                                                                          "celebration": { "type": "fixed", "month": 10, "day": 23 }, "saint": "Άγιος Ιάκωβος ο Αδελφόθεος" },
+  { "nameday_key": "dimitrios",       "primary_form": "Δημήτρης / Δήμητρα",          "all_forms_normalized": ["δημητρησ","δημητριοσ","δημητρα","ντινα","jim","dimitris","dimitrios","jimmy"],                              "celebration": { "type": "fixed", "month": 10, "day": 26 }, "saint": "Άγιος Δημήτριος ο Μυροβλύτης" },
+  { "nameday_key": "nestoras",        "primary_form": "Νέστορας",                    "all_forms_normalized": ["νεστορασ","νεστωρ","nestor"],                                                                                  "celebration": { "type": "fixed", "month": 10, "day": 27 }, "saint": "Άγιος Νέστορας" },
+  { "nameday_key": "anastasia_romaia","primary_form": "Αναστασία η Ρωμαία",          "all_forms_normalized": ["αναστασιαρωμαια"],                                                                                              "celebration": { "type": "fixed", "month": 10, "day": 29 }, "saint": "Αγία Αναστασία η Ρωμαία" },
+
+  { "nameday_key": "kosmas_damianos", "primary_form": "Κοσμάς / Δαμιανός",          "all_forms_normalized": ["κοσμασ","δαμιανοσ","kosmas","damianos"],                                                                       "celebration": { "type": "fixed", "month": 11, "day": 1  }, "saint": "Άγιοι Ανάργυροι Κοσμάς και Δαμιανός" },
+  { "nameday_key": "michail_gavriil", "primary_form": "Μιχάλης / Γαβριήλ",          "all_forms_normalized": ["μιχαηλ","μιχαλησ","γαβριηλ","ραφαηλ","αγγελοσ","αγγελα","michael","michalis","gabriel"],                  "celebration": { "type": "fixed", "month": 11, "day": 8  }, "saint": "Σύναξη των Αρχαγγέλων Μιχαήλ και Γαβριήλ" },
+  { "nameday_key": "nektarios",       "primary_form": "Νεκτάριος",                   "all_forms_normalized": ["νεκταριοσ","νεκταρια","nektarios"],                                                                              "celebration": { "type": "fixed", "month": 11, "day": 9  }, "saint": "Άγιος Νεκτάριος Πενταπόλεως" },
+  { "nameday_key": "minas",           "primary_form": "Μηνάς",                       "all_forms_normalized": ["μηνασ","minas"],                                                                                                "celebration": { "type": "fixed", "month": 11, "day": 11 }, "saint": "Άγιος Μηνάς" },
+  { "nameday_key": "ioannis_eleimon", "primary_form": "Ιωάννης ο Ελεήμων",           "all_forms_normalized": ["ελεημων"],                                                                                                       "celebration": { "type": "fixed", "month": 11, "day": 12 }, "saint": "Άγιος Ιωάννης ο Ελεήμων" },
+  { "nameday_key": "ioannis_chrysostomos_nov","primary_form": "Χρυσόστομος (Νοεμβρίου)","all_forms_normalized": ["χρυσοστομοσνοεμβριου"],                                                                                       "celebration": { "type": "fixed", "month": 11, "day": 13 }, "saint": "Άγιος Ιωάννης ο Χρυσόστομος" },
+  { "nameday_key": "filippos_apostolos","primary_form": "Φίλιππος ο Απόστολος",      "all_forms_normalized": ["φιλιπποσαποστολοσ"],                                                                                            "celebration": { "type": "fixed", "month": 11, "day": 14 }, "saint": "Άγιος Φίλιππος ο Απόστολος" },
+  { "nameday_key": "matthaios",       "primary_form": "Ματθαίος",                    "all_forms_normalized": ["ματθαιοσ","matthaios","matthew"],                                                                              "celebration": { "type": "fixed", "month": 11, "day": 16 }, "saint": "Άγιος Ματθαίος ο Ευαγγελιστής" },
+  { "nameday_key": "eisodia",         "primary_form": "Παναγιώτα",                   "all_forms_normalized": ["εισοδια","παναγιωτα"],                                                                                          "celebration": { "type": "fixed", "month": 11, "day": 21 }, "saint": "Εισόδια της Θεοτόκου" },
+  { "nameday_key": "filimon",         "primary_form": "Φιλήμων",                     "all_forms_normalized": ["φιλημων","philemon"],                                                                                            "celebration": { "type": "fixed", "month": 11, "day": 22 }, "saint": "Άγιος Φιλήμων" },
+  { "nameday_key": "amfilochios",     "primary_form": "Αμφιλόχιος",                  "all_forms_normalized": ["αμφιλοχιοσ"],                                                                                                   "celebration": { "type": "fixed", "month": 11, "day": 23 }, "saint": "Άγιος Αμφιλόχιος" },
+  { "nameday_key": "ekaterini",       "primary_form": "Αικατερίνη / Κατερίνα",       "all_forms_normalized": ["αικατερινη","κατερινα","κατινα","κατια","katerina","katherine","kate"],                                  "celebration": { "type": "fixed", "month": 11, "day": 25 }, "saint": "Αγία Αικατερίνη η Μεγαλομάρτυς" },
+  { "nameday_key": "stylianos",       "primary_form": "Στυλιανός",                   "all_forms_normalized": ["στυλιανοσ","στελιοσ","stylianos","stelios"],                                                                "celebration": { "type": "fixed", "month": 11, "day": 26 }, "saint": "Άγιος Στυλιανός" },
+  { "nameday_key": "andreas",         "primary_form": "Ανδρέας / Ανδριάνα",          "all_forms_normalized": ["ανδρεασ","ανδριανα","andreas","andrew"],                                                                      "celebration": { "type": "fixed", "month": 11, "day": 30 }, "saint": "Άγιος Ανδρέας ο Πρωτόκλητος" },
+
+  { "nameday_key": "varvara",         "primary_form": "Βαρβάρα",                     "all_forms_normalized": ["βαρβαρα","varvara","barbara"],                                                                                  "celebration": { "type": "fixed", "month": 12, "day": 4  }, "saint": "Αγία Βαρβάρα" },
+  { "nameday_key": "savvas",          "primary_form": "Σάββας",                      "all_forms_normalized": ["σαββασ","savvas","sabbas"],                                                                                      "celebration": { "type": "fixed", "month": 12, "day": 5  }, "saint": "Άγιος Σάββας ο Ηγιασμένος" },
+  { "nameday_key": "nikolaos",        "primary_form": "Νικόλαος / Νίκη",            "all_forms_normalized": ["νικολαοσ","νικοσ","νικη","νικολετα","νικολινα","nikolaos","nikos","nick","nicholas"],                       "celebration": { "type": "fixed", "month": 12, "day": 6  }, "saint": "Άγιος Νικόλαος ο Θαυματουργός" },
+  { "nameday_key": "anna_syllipsi",   "primary_form": "Άννα (Σύλληψις)",             "all_forms_normalized": ["αννασυλληψισ"],                                                                                                  "celebration": { "type": "fixed", "month": 12, "day": 9  }, "saint": "Σύλληψις της Αγίας Άννης" },
+  { "nameday_key": "spyridon",        "primary_form": "Σπύρος / Σπυριδούλα",         "all_forms_normalized": ["σπυριδων","σπυροσ","σπυριδουλα","spyridon","spyros"],                                                          "celebration": { "type": "fixed", "month": 12, "day": 12 }, "saint": "Άγιος Σπυρίδων" },
+  { "nameday_key": "eleftherios",     "primary_form": "Ελευθέριος / Ελευθερία",      "all_forms_normalized": ["ελευθεριοσ","ελευθερια","λευτερησ","eleftherios","lefteris"],                                                "celebration": { "type": "fixed", "month": 12, "day": 15 }, "saint": "Άγιος Ελευθέριος" },
+  { "nameday_key": "daniel",          "primary_form": "Δανιήλ",                      "all_forms_normalized": ["δανιηλ","daniel"],                                                                                              "celebration": { "type": "fixed", "month": 12, "day": 17 }, "saint": "Προφήτης Δανιήλ" },
+  { "nameday_key": "ignatios",        "primary_form": "Ιγνάτιος",                    "all_forms_normalized": ["ιγνατιοσ","ignatios"],                                                                                          "celebration": { "type": "fixed", "month": 12, "day": 20 }, "saint": "Άγιος Ιγνάτιος ο Θεοφόρος" },
+  { "nameday_key": "iouliani",        "primary_form": "Ιουλιανή",                    "all_forms_normalized": ["ιουλιανη","iouliani"],                                                                                          "celebration": { "type": "fixed", "month": 12, "day": 21 }, "saint": "Αγία Ιουλιανή" },
+  { "nameday_key": "christos",        "primary_form": "Χρήστος / Χριστίνα",          "all_forms_normalized": ["χρηστοσ","χρυσοσ","χριστινα","χριστινακι","christos","christina"],                                          "celebration": { "type": "fixed", "month": 12, "day": 25 }, "saint": "Γέννησις του Κυρίου" },
+  { "nameday_key": "emmanouil",       "primary_form": "Μανώλης / Εμμανουέλα",       "all_forms_normalized": ["εμμανουηλ","μανωλησ","εμμανουελα","manolis","emmanuel"],                                                      "celebration": { "type": "fixed", "month": 12, "day": 26 }, "saint": "Σύναξις της Υπεραγίας Θεοτόκου" },
+  { "nameday_key": "stefanos",        "primary_form": "Στέφανος / Στεφανία",         "all_forms_normalized": ["στεφανοσ","στεφανια","stefanos","stephania","steve"],                                                          "celebration": { "type": "fixed", "month": 12, "day": 27 }, "saint": "Άγιος Στέφανος ο Πρωτομάρτυς" },
+  { "nameday_key": "melani",          "primary_form": "Μελανία",                     "all_forms_normalized": ["μελανια","μελανη","melania"],                                                                                  "celebration": { "type": "fixed", "month": 12, "day": 31 }, "saint": "Αγία Μελανία η Ρωμαία" },
+
+  { "nameday_key": "theodoros_tiron", "primary_form": "Θεόδωρος (Α' Σαββάτου)",       "all_forms_normalized": ["θεοδωροστηρων"],                                                                                                "celebration": { "type": "easter_offset", "offset": -36 }, "saint": "Άγιος Θεόδωρος ο Τήρων (Α' Σαββάτου Νηστειών)" },
+  { "nameday_key": "anastasios",      "primary_form": "Αναστάσης / Αναστασία",       "all_forms_normalized": ["αναστασιοσ","αναστασησ","τασοσ","αναστασια","anastasios","tasos","anastasia"],                              "celebration": { "type": "easter_offset", "offset": 0  }, "saint": "Άγια Ανάσταση του Κυρίου" },
+  { "nameday_key": "lampros",         "primary_form": "Λάμπρος / Λαμπρινή",          "all_forms_normalized": ["λαμπροσ","λαμπρινη","λαμπρινα","lampros","lambros","lambrini"],                                                "celebration": { "type": "easter_offset", "offset": 0  }, "saint": "Πάσχα — Λαμπρή" },
+  { "nameday_key": "panagia_zoodochos","primary_form": "Ζωή",                        "all_forms_normalized": ["ζωη","ζωιτσα","zoi","zoe"],                                                                                      "celebration": { "type": "easter_offset", "offset": 5  }, "saint": "Ζωοδόχου Πηγής" },
+  { "nameday_key": "thomas",          "primary_form": "Θωμάς",                       "all_forms_normalized": ["θωμασ","thomas","tom"],                                                                                          "celebration": { "type": "easter_offset", "offset": 7  }, "saint": "Άγιος Θωμάς ο Απόστολος (Κυριακή του Θωμά)" },
+  { "nameday_key": "pentikosti",      "primary_form": "Αγίου Πνεύματος",             "all_forms_normalized": ["πνευματια","πνευμα"],                                                                                            "celebration": { "type": "easter_offset", "offset": 50 }, "saint": "Αγίου Πνεύματος" }
 ]
