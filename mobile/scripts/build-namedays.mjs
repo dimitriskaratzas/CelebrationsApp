@@ -140,8 +140,10 @@ async function buildCatalog() {
     let m;
     while ((m = ROW_RE.exec(html)) !== null) {
       const [, td, dayStr, monthLabel] = m;
-      // Sanity: only accept rows for the month we're scraping (skip overlap rows).
-      if (!monthLabel.includes(monthGenitive.slice(0, 5))) continue;
+      // Sanity: only accept rows for the month we're scraping. eortologio.gr is
+      // inconsistent with diacritics (e.g. May is written "Μαίου" on the page but
+      // "Μαΐου" everywhere else), so compare accent-stripped.
+      if (!normalize(monthLabel).includes(normalize(monthGenitive).slice(0, 5))) continue;
       const day = Number(dayStr);
       if (!Number.isInteger(day) || day < 1 || day > 31) continue;
 
