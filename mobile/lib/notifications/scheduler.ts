@@ -2,6 +2,8 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
 import * as favoritesRepo from '@/features/favorites/db/favorites.repo';
+import * as favNotifsRepo from '@/features/favorites/db/favoriteNotifs.repo';
+import type { NotificationOverride } from '@/features/favorites/db/favoriteNotifs.repo';
 import { nextCelebrationFor } from '@/features/today/lib/nextCelebration';
 
 import { getNotificationPrefs } from './prefs';
@@ -50,20 +52,44 @@ interface ScheduledItem {
   body: string;
 }
 
+interface EffectivePrefs {
+  hour: number;
+  minute: number;
+  leadDays: number;
+}
+
+// Merges a per-favorite override on top of the global prefs. Returns `null` if
+// the favorite is silenced by its override (caller skips scheduling for it).
+function effectivePrefsFor(
+  global: { enabled: boolean; hour: number; minute: number; leadDays: number },
+  override: NotificationOverride | undefined,
+): EffectivePrefs | null {
+  if (override?.enabled === false) return null;
+  return {
+    hour: override?.hour ?? global.hour,
+    minute: override?.minute ?? global.minute,
+    leadDays: override?.leadDays ?? global.leadDays,
+  };
+}
+
 function buildScheduledItems(
   favorites: Awaited<ReturnType<typeof favoritesRepo.listLive>>,
-  prefs: { hour: number; minute: number; leadDays: number },
+  global: { enabled: boolean; hour: number; minute: number; leadDays: number },
+  overrides: Map<string, NotificationOverride>,
   today: Date,
 ): ScheduledItem[] {
   const items: ScheduledItem[] = [];
 
   for (const fav of favorites) {
+    const effective = effectivePrefsFor(global, overrides.get(fav.id));
+    if (!effective) continue; // silenced by per-favorite override
+
     const next = nextCelebrationFor(fav, today);
     if (!next) continue;
 
     const fireDate = new Date(next.date);
-    fireDate.setDate(fireDate.getDate() - prefs.leadDays);
-    fireDate.setHours(prefs.hour, prefs.minute, 0, 0);
+    fireDate.setDate(fireDate.getDate() - effective.leadDays);
+    fireDate.setHours(effective.hour, effective.minute, 0, 0);
 
     // Same-day-past-hour rescue: if the only thing wrong is that the configured fire
     // hour has already passed *today* (e.g. user enabled notifications at 21:00 for a
@@ -75,18 +101,18 @@ function buildScheduledItems(
       const todayStart = new Date(today);
       todayStart.setHours(0, 0, 0, 0);
       const isLatePastHourToday =
-        prefs.leadDays === 0 && nextStart.getTime() === todayStart.getTime();
+        effective.leadDays === 0 && nextStart.getTime() === todayStart.getTime();
       if (!isLatePastHourToday) continue;
       // Fire in 5 seconds so the notification appears immediately.
       fireDate.setTime(today.getTime() + 5_000);
     }
 
     const kindLabel = next.kind === 'nameday' ? 'Γιορτάζει' : 'Γενέθλια έχει';
-    const dayLabel = prefs.leadDays === 0
+    const dayLabel = effective.leadDays === 0
       ? 'σήμερα'
-      : prefs.leadDays === 1
+      : effective.leadDays === 1
         ? 'αύριο'
-        : `σε ${prefs.leadDays} μέρες`;
+        : `σε ${effective.leadDays} μέρες`;
 
     items.push({
       date: fireDate,
@@ -139,8 +165,11 @@ async function doReschedule(now: Date): Promise<RescheduleResult> {
   await ensureChannelAsync();
   await cancelCelebrationsScheduledAsync();
 
-  const favorites = await favoritesRepo.listLive();
-  const items = buildScheduledItems(favorites, prefs, now);
+  const [favorites, overrides] = await Promise.all([
+    favoritesRepo.listLive(),
+    favNotifsRepo.getAllOverrides(),
+  ]);
+  const items = buildScheduledItems(favorites, prefs, overrides, now);
 
   for (const item of items) {
     await Notifications.scheduleNotificationAsync({
