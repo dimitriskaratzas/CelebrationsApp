@@ -167,6 +167,41 @@ function FavoriteTodayRow({ item, onPress, onSend }: FavoriteTodayRowProps) {
   );
 }
 
+interface RecentRowProps {
+  item: TodayItem;
+  today: Date;
+  onPress: () => void;
+  onSend: () => void;
+}
+
+function RecentRow({ item, today, onPress, onSend }: RecentRowProps) {
+  const delta = differenceInCalendarDays(startOfDay(today), startOfDay(item.date));
+  const daysAgoLabel =
+    delta === 1 ? 'Χθες' : delta === 2 ? 'Προχθές' : `Πριν ${delta} μέρες`;
+  const typeLabel = item.kind === 'nameday' ? 'Ονομαστική' : 'Γενέθλια';
+
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.favRow, pressed && styles.favRowPressed]}>
+      <Avatar name={item.favorite.displayName} size={44} />
+      <View style={styles.favText}>
+        <Text style={styles.favName} numberOfLines={1}>
+          {item.favorite.displayName}
+        </Text>
+        <Text style={styles.favSub} numberOfLines={1}>
+          {daysAgoLabel} • {typeLabel}
+        </Text>
+      </View>
+      <Pressable
+        onPress={onSend}
+        hitSlop={8}
+        style={({ pressed }) => [styles.sendPillLate, pressed && styles.sendPillPressed]}
+      >
+        <Text style={styles.sendPillLateText}>Καθυστερημένα →</Text>
+      </Pressable>
+    </Pressable>
+  );
+}
+
 interface UpcomingRowProps {
   item: TodayItem;
   today: Date;
@@ -215,6 +250,17 @@ function shareWishesFor(item: TodayItem): void {
   });
 }
 
+// Same as shareWishesFor but for celebrations that have already passed (Recent rail).
+// The message acknowledges the lateness so the user doesn't have to draft it themselves.
+function shareLateWishesFor(item: TodayItem): void {
+  const name = item.favorite.displayName.trim();
+  const message =
+    item.kind === 'nameday'
+      ? `Χρόνια πολλά ${name}, έστω και καθυστερημένα! Να χαίρεσαι το όνομά σου.`
+      : `Χρόνια πολλά ${name}, έστω και καθυστερημένα! Να τα εκατοστήσεις!`;
+  Share.share({ message }).catch(() => {});
+}
+
 // ─── screen ───────────────────────────────────────────────────────────────────
 
 export function TodayScreenAegean() {
@@ -242,7 +288,7 @@ export function TodayScreenAegean() {
     };
   }, []);
 
-  const { today: todayItems, upcoming, saintsToday } = useTodayList(today);
+  const { today: todayItems, upcoming, recent, saintsToday } = useTodayList(today);
 
   const weekdayLabel = useMemo(
     () => format(today, 'EEEE', { locale: el }).toUpperCase(),
@@ -254,7 +300,8 @@ export function TodayScreenAegean() {
   const openFavorite = (id: string) =>
     router.push({ pathname: '/favorite/[id]', params: { id } });
 
-  const isFirstLaunch = favorites.length === 0 && todayItems.length === 0 && upcoming.length === 0;
+  const isFirstLaunch =
+    favorites.length === 0 && todayItems.length === 0 && upcoming.length === 0 && recent.length === 0;
   const showFavoritesSection = favorites.length > 0; // hide when user has no favorites at all
 
   return (
@@ -315,6 +362,28 @@ export function TodayScreenAegean() {
                 </Text>
               </View>
             )}
+          </>
+        ) : null}
+
+        {/* Recent section — favorites whose celebration just passed. The "send late wishes"
+            CTA prefills a message that acknowledges the lateness so the user doesn't have to. */}
+        {recent.length > 0 ? (
+          <>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionHeader}>Πρόσφατες</Text>
+              <View style={styles.wave} />
+            </View>
+            <View style={styles.favList}>
+              {recent.map((item) => (
+                <RecentRow
+                  key={item.id}
+                  item={item}
+                  today={today}
+                  onPress={() => openFavorite(item.favorite.id)}
+                  onSend={() => shareLateWishesFor(item)}
+                />
+              ))}
+            </View>
           </>
         ) : null}
 
@@ -539,6 +608,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_800ExtraBold',
     fontSize: 13,
     color: theme.heroAccentInk,
+  },
+  // Outlined variant for the Recent rail — signals "secondary action, still
+  // worth doing" without competing visually with today's solid amber pill.
+  sendPillLate: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: theme.radius.chip,
+    borderWidth: 1.5,
+    borderColor: theme.gold,
+    backgroundColor: 'transparent',
+  },
+  sendPillLateText: {
+    fontFamily: 'Manrope_800ExtraBold',
+    fontSize: 13,
+    color: theme.accent,
   },
 
   // Empty favorites-today card

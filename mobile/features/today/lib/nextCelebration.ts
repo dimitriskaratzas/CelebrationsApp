@@ -40,6 +40,22 @@ export function nextNamedayDate(entry: NamedayEntry, today: Date): Date | null {
   return namedayDateForYear(entry, today.getFullYear() + 1);
 }
 
+// Mirror of nextOccurrenceOf for the "recent" rail — returns the most recent
+// past occurrence (strictly before `today`). If this-year's date hasn't happened
+// yet (or is today), we fall back to last year.
+export function prevOccurrenceOf(monthDay: { month: number; day: number }, today: Date): Date {
+  const thisYear = new Date(today.getFullYear(), monthDay.month - 1, monthDay.day);
+  if (differenceInCalendarDays(thisYear, today) < 0) return thisYear;
+  return new Date(today.getFullYear() - 1, monthDay.month - 1, monthDay.day);
+}
+
+export function prevNamedayDate(entry: NamedayEntry, today: Date): Date | null {
+  const thisYear = namedayDateForYear(entry, today.getFullYear());
+  if (!thisYear) return null;
+  if (differenceInCalendarDays(thisYear, today) < 0) return thisYear;
+  return namedayDateForYear(entry, today.getFullYear() - 1);
+}
+
 export function parseBirthDate(value: string): { month: number; day: number; year: number } | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!m) return null;

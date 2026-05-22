@@ -10,6 +10,8 @@ import {
   nextNamedayDate,
   nextOccurrenceOf,
   parseBirthDate,
+  prevNamedayDate,
+  prevOccurrenceOf,
   type CelebrationKind,
 } from '../lib/nextCelebration';
 
@@ -35,11 +37,14 @@ interface UseTodayList {
   loading: boolean;
   today: TodayItem[];
   upcoming: TodayItem[];
+  recent: TodayItem[];
   saintsToday: SaintOfDay[];
 }
 
-const UPCOMING_DAYS = 7;
-const UPCOMING_CAP = 10;
+const UPCOMING_DAYS = 14;
+const UPCOMING_CAP = 12;
+const RECENT_DAYS = 7;
+const RECENT_CAP = 8;
 
 export function useTodayList(today: Date): UseTodayList {
   const { favorites, loading } = useFavorites();
@@ -65,19 +70,31 @@ export function useTodayList(today: Date): UseTodayList {
       }
     }
 
-    const allItems: TodayItem[] = [];
+    const futureItems: TodayItem[] = [];
+    const pastItems: TodayItem[] = [];
 
     for (const fav of favorites) {
       if (fav.namedayKey) {
         const entry = CATALOG.find((e) => e.nameday_key === fav.namedayKey);
         if (entry) {
-          const date = nextNamedayDate(entry, todayStart);
-          if (date) {
-            allItems.push({
+          const nextDate = nextNamedayDate(entry, todayStart);
+          if (nextDate) {
+            futureItems.push({
               id: `${fav.id}:nameday`,
               favorite: fav,
               kind: 'nameday',
-              date: startOfDay(date),
+              date: startOfDay(nextDate),
+              primaryForm: entry.primary_form,
+              saint: entry.saint,
+            });
+          }
+          const prevDate = prevNamedayDate(entry, todayStart);
+          if (prevDate) {
+            pastItems.push({
+              id: `${fav.id}:nameday:prev`,
+              favorite: fav,
+              kind: 'nameday',
+              date: startOfDay(prevDate),
               primaryForm: entry.primary_form,
               saint: entry.saint,
             });
@@ -88,15 +105,22 @@ export function useTodayList(today: Date): UseTodayList {
       if (fav.birthDate) {
         const parsed = parseBirthDate(fav.birthDate);
         if (parsed) {
-          const date = nextOccurrenceOf({ month: parsed.month, day: parsed.day }, todayStart);
           const yearKnown = parsed.year !== 1;
-          const ageThisYear = yearKnown ? date.getFullYear() - parsed.year : undefined;
-          allItems.push({
+          const nextDate = nextOccurrenceOf({ month: parsed.month, day: parsed.day }, todayStart);
+          futureItems.push({
             id: `${fav.id}:birthday`,
             favorite: fav,
             kind: 'birthday',
-            date: startOfDay(date),
-            ageThisYear,
+            date: startOfDay(nextDate),
+            ageThisYear: yearKnown ? nextDate.getFullYear() - parsed.year : undefined,
+          });
+          const prevDate = prevOccurrenceOf({ month: parsed.month, day: parsed.day }, todayStart);
+          pastItems.push({
+            id: `${fav.id}:birthday:prev`,
+            favorite: fav,
+            kind: 'birthday',
+            date: startOfDay(prevDate),
+            ageThisYear: yearKnown ? prevDate.getFullYear() - parsed.year : undefined,
           });
         }
       }
@@ -104,19 +128,28 @@ export function useTodayList(today: Date): UseTodayList {
 
     const todayList: TodayItem[] = [];
     const upcomingList: TodayItem[] = [];
+    const recentList: TodayItem[] = [];
 
-    for (const item of allItems) {
+    for (const item of futureItems) {
       const delta = differenceInCalendarDays(item.date, todayStart);
       if (delta === 0) todayList.push(item);
       else if (delta > 0 && delta <= UPCOMING_DAYS) upcomingList.push(item);
     }
 
+    for (const item of pastItems) {
+      const delta = differenceInCalendarDays(item.date, todayStart);
+      if (delta < 0 && delta >= -RECENT_DAYS) recentList.push(item);
+    }
+
     upcomingList.sort((a, b) => a.date.getTime() - b.date.getTime());
+    // Most recent first — the "just missed yesterday" card belongs at the top.
+    recentList.sort((a, b) => b.date.getTime() - a.date.getTime());
 
     return {
       loading: loading && !ready,
       today: todayList,
       upcoming: upcomingList.slice(0, UPCOMING_CAP),
+      recent: recentList.slice(0, RECENT_CAP),
       saintsToday,
     };
   }, [favorites, loading, ready, today]);
