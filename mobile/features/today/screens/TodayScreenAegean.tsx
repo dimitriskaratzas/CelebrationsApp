@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 
 import { useFavorites } from '@/features/favorites/hooks/useFavorites';
+import { UpcomingCatalogCarousel } from '@/features/today/components/UpcomingCatalogCarousel';
 import { useTodayList, type SaintOfDay, type TodayItem } from '@/features/today/hooks/useTodayList';
 import { Avatar } from '@/lib/ui/Avatar';
 import { shadow, spacing, theme, typography } from '@/lib/ui/theme';
@@ -332,6 +333,10 @@ export function TodayScreenAegean() {
 
         {/* Hero: the celebration of the day (saints + primary forms) */}
         <Hero saintsToday={saintsToday} />
+
+        {/* Upcoming-catalog carousel: discoverability rail showing the next two
+            weeks of the eortologio, with tap-to-add for any saint. */}
+        <UpcomingCatalogCarousel today={today} />
 
         {/* From your favorites */}
         {showFavoritesSection ? (
