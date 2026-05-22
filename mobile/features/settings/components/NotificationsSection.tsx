@@ -2,7 +2,18 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Notifications from 'expo-notifications';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Linking, Modal, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import {
+  Alert,
+  AppState,
+  type AppStateStatus,
+  Linking,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
 
 import {
   getNotificationPrefs,
@@ -41,16 +52,33 @@ export function NotificationsSection() {
   const [leadOpen, setLeadOpen] = useState(false);
 
   useEffect(() => {
-    (async () => {
+    let cancelled = false;
+    const refresh = async () => {
       const [p, s] = await Promise.all([getNotificationPrefs(), getPermissionStatusAsync()]);
+      if (cancelled) return;
       setPrefs(p);
       setPermission(s);
-    })();
+    };
+    refresh();
+    // Re-poll permission when the user comes back from system settings.
+    const sub = AppState.addEventListener('change', (status: AppStateStatus) => {
+      if (status === 'active') {
+        getPermissionStatusAsync().then((s) => {
+          if (!cancelled) setPermission(s);
+        });
+      }
+    });
+    return () => {
+      cancelled = true;
+      sub.remove();
+    };
   }, []);
 
+  // Persist first, then update state — if the write fails, the UI stays consistent
+  // with what's actually on disk. (Reschedule errors are non-fatal.)
   const persist = useCallback(async (next: NotificationPrefs) => {
-    setPrefs(next);
     await setNotificationPrefs(next);
+    setPrefs(next);
     await rescheduleAllAsync();
   }, []);
 
