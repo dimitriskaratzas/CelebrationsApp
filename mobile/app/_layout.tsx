@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AuthProvider, useAuth } from '@/features/auth/hooks/useAuth';
+import { useAutoReschedule } from '@/lib/notifications/useAutoReschedule';
 import { SyncProvider } from '@/lib/sync/SyncProvider';
 import { BootingScreen } from '@/lib/ui/BootingScreen';
 import { theme } from '@/lib/ui/theme';
@@ -46,6 +47,7 @@ export function ErrorBoundary({ error, retry }: { error: Error; retry: () => voi
 
 function RootGate() {
   const { isReady, error, retry, user } = useAuth();
+  useAutoReschedule();
 
   if (!isReady) {
     return <BootingScreen />;

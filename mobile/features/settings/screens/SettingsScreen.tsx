@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { NotificationsSection } from '@/features/settings/components/NotificationsSection';
 import { useSync } from '@/lib/sync/SyncProvider';
 import { Banner } from '@/lib/ui/Banner';
 import { spacing, theme, typography } from '@/lib/ui/theme';
@@ -100,6 +101,9 @@ export function SettingsScreen() {
             <Banner tone="error" message={`Σφάλμα συγχρονισμού: ${lastError}`} />
           </View>
         ) : null}
+
+        {/* Notifications */}
+        <NotificationsSection />
 
         {/* About */}
         <SettingsGroup title="Σχετικά">

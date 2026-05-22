@@ -8,7 +8,9 @@
     "scheme": "celebrations",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "platforms": ["android"],
+    "platforms": [
+      "android"
+    ],
     "android": {
       "package": "com.dimkaratz.celebrations",
       "adaptiveIcon": {
@@ -32,7 +34,16 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#0F4C81",
+          "defaultChannel": "celebrations"
+        }
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,
