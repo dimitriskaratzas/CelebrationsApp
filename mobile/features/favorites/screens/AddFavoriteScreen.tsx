@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert } from 'react-native';
 
 import { FavoriteForm } from '../components/FavoriteForm';
@@ -8,11 +8,30 @@ const FREE_TIER_CAP = 10;
 
 export function AddFavoriteScreen() {
   const router = useRouter();
+  // Optional prefill from the catalog carousel: tapping a saint in the upcoming-
+  // celebrations sheet routes here with the saint's primary form + nameday key.
+  const { prefillName, prefillNamedayKey } = useLocalSearchParams<{
+    prefillName?: string;
+    prefillNamedayKey?: string;
+  }>();
+  const hasPrefill = Boolean(prefillName || prefillNamedayKey);
+
   return (
     <FavoriteForm
       eyebrow="ΝΕΟ ΑΓΑΠΗΜΕΝΟ"
       title="Πες μας ποιον/ποιαν να θυμάμαστε"
       saveLabel="Αποθήκευση"
+      initial={
+        hasPrefill
+          ? {
+              displayName: prefillName ?? '',
+              namedayKey: prefillNamedayKey ?? '',
+              birthDate: null,
+              relationship: null,
+              notes: null,
+            }
+          : undefined
+      }
       onSubmit={async (input) => {
         const count = await repo.countLive();
         if (count >= FREE_TIER_CAP) {
