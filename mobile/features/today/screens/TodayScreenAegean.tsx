@@ -3,12 +3,13 @@ import { el } from 'date-fns/locale';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   AppState,
   type AppStateStatus,
   Pressable,
   ScrollView,
+  Share,
   StatusBar,
   StyleSheet,
   Text,
@@ -31,12 +32,6 @@ function relativeDayLabel(date: Date, today: Date): string {
   return `Σε ${delta} ${delta === 1 ? 'μέρα' : 'μέρες'}`;
 }
 
-function msUntilMidnight(now: Date): number {
-  const next = new Date(now);
-  next.setHours(24, 0, 0, 0);
-  return Math.max(1000, next.getTime() - now.getTime());
-}
-
 function isSameDay(a: Date, b: Date): boolean {
   return (
     a.getFullYear() === b.getFullYear() &&
@@ -46,13 +41,32 @@ function isSameDay(a: Date, b: Date): boolean {
 }
 
 // Joins primary forms naturally: "Γιώργος", "Γιώργος, Γεωργία", "Γιώργος, Γεωργία και Αλέξανδρος".
-function joinPrimaryForms(saints: SaintOfDay[]): string {
+// Caps at MAX visible names; surfaces the remainder as "και X ακόμη" to keep the hero
+// from blowing up on synaxis days that list 8+ celebrating names.
+function joinPrimaryForms(saints: SaintOfDay[], max = 5): string {
   const names = saints.map((s) => s.primary_form);
   if (names.length === 0) return '';
   if (names.length === 1) return names[0]!;
-  if (names.length === 2) return `${names[0]} και ${names[1]}`;
-  return `${names.slice(0, -1).join(', ')} και ${names[names.length - 1]}`;
+  if (names.length <= max) {
+    if (names.length === 2) return `${names[0]} και ${names[1]}`;
+    return `${names.slice(0, -1).join(', ')} και ${names[names.length - 1]}`;
+  }
+  const head = names.slice(0, max).join(', ');
+  const rest = names.length - max;
+  return `${head} και ${rest} ${rest === 1 ? 'ακόμη' : 'ακόμη'}`;
 }
+
+// Picks a font size for the primary saint title that doesn't truncate ugly. Long
+// synaxis names ("Σύναξις της Υπεραγίας Θεοτόκου των Βλαχερνών") get a smaller size
+// so they fit in 3 lines instead of getting cut off mid-word.
+function heroTitleSize(text: string): { fontSize: number; lineHeight: number } {
+  const len = text.length;
+  if (len > 50) return { fontSize: 20, lineHeight: 26 };
+  if (len > 30) return { fontSize: 24, lineHeight: 29 };
+  return { fontSize: 28, lineHeight: 32 };
+}
+
+const MAX_EXTRA_SAINTS = 3;
 
 // ─── subcomponents ────────────────────────────────────────────────────────────
 
@@ -63,8 +77,11 @@ interface HeroProps {
 function Hero({ saintsToday }: HeroProps) {
   const hasSaints = saintsToday.length > 0;
   const primary = saintsToday[0];
-  const extraSaints = saintsToday.slice(1);
+  const allExtras = saintsToday.slice(1);
+  const visibleExtras = allExtras.slice(0, MAX_EXTRA_SAINTS);
+  const hiddenExtras = allExtras.length - visibleExtras.length;
   const formsLine = hasSaints ? joinPrimaryForms(saintsToday) : '';
+  const titleSizing = primary ? heroTitleSize(primary.saint) : null;
 
   return (
     <LinearGradient
@@ -85,12 +102,13 @@ function Hero({ saintsToday }: HeroProps) {
 
       {hasSaints ? (
         <>
-          <Text style={styles.heroSaint} numberOfLines={2}>
+          <Text style={[styles.heroSaint, titleSizing]} numberOfLines={3}>
             {primary!.saint}
           </Text>
-          {extraSaints.length > 0 ? (
+          {visibleExtras.length > 0 ? (
             <Text style={styles.heroSaintExtra} numberOfLines={2}>
-              {extraSaints.map((s) => s.saint).join(' · ')}
+              {visibleExtras.map((s) => s.saint).join(' · ')}
+              {hiddenExtras > 0 ? ` · και ${hiddenExtras} ακόμη` : ''}
             </Text>
           ) : null}
 
@@ -183,29 +201,43 @@ function UpcomingRow({ item, today, onPress }: UpcomingRowProps) {
   );
 }
 
+// Open the OS share sheet with a Greek wishes message for the given favorite.
+// The favorite's nameday/birthday already happened or is happening; this is the
+// "Στείλε →" CTA on the Today screen.
+function shareWishesFor(item: TodayItem): void {
+  const name = item.favorite.displayName.trim();
+  const message =
+    item.kind === 'nameday'
+      ? `Χρόνια πολλά ${name}! Να χαίρεσαι το όνομά σου.`
+      : `Χρόνια πολλά ${name}! Να τα εκατοστήσεις!`;
+  Share.share({ message }).catch(() => {
+    // User dismissed or the OS rejected — no-op.
+  });
+}
+
 // ─── screen ───────────────────────────────────────────────────────────────────
 
 export function TodayScreenAegean() {
   const router = useRouter();
   const { favorites } = useFavorites();
   const [today, setToday] = useState(() => new Date());
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const tick = () => {
       const now = new Date();
       setToday((prev) => (isSameDay(prev, now) ? prev : now));
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(tick, msUntilMidnight(now));
     };
-    timerRef.current = setTimeout(tick, msUntilMidnight(new Date()));
+    // Light poll every 60s. Catches clock-change scenarios (user manually
+    // adjusts the device clock while the app is foreground) and midnight
+    // rollover without us needing to manage a precise setTimeout chain.
+    const interval = setInterval(tick, 60_000);
 
     const sub = AppState.addEventListener('change', (status: AppStateStatus) => {
       if (status === 'active') tick();
     });
 
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      clearInterval(interval);
       sub.remove();
     };
   }, []);
@@ -269,7 +301,7 @@ export function TodayScreenAegean() {
                     key={item.id}
                     item={item}
                     onPress={() => openFavorite(item.favorite.id)}
-                    onSend={() => openFavorite(item.favorite.id)}
+                    onSend={() => shareWishesFor(item)}
                   />
                 ))}
               </View>

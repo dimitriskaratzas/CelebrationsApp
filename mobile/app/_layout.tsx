@@ -45,9 +45,15 @@ export function ErrorBoundary({ error, retry }: { error: Error; retry: () => voi
   );
 }
 
+// Wraps the children with the notifications auto-reschedule hook. Mounted only
+// after `isReady`, so the hook can safely touch SQLite + use `nextCelebrationFor`.
+function ReadySubtree({ children }: { children: React.ReactNode }) {
+  useAutoReschedule();
+  return <>{children}</>;
+}
+
 function RootGate() {
   const { isReady, error, retry, user } = useAuth();
-  useAutoReschedule();
 
   if (!isReady) {
     return <BootingScreen />;
@@ -58,6 +64,7 @@ function RootGate() {
   }
 
   return (
+    <ReadySubtree>
     <SyncProvider>
       <Stack
         screenOptions={{
@@ -81,6 +88,7 @@ function RootGate() {
         <Stack.Screen name="auth/register" options={{ title: 'Δημιουργία λογαριασμού' }} />
       </Stack>
     </SyncProvider>
+    </ReadySubtree>
   );
 }
 
