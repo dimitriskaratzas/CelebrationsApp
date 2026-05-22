@@ -61,6 +61,23 @@ const MIGRATIONS: Migration[] = [
       CREATE INDEX IF NOT EXISTS idx_outbox_blocked ON outbox (blocked);
     `,
   },
+  {
+    version: 3,
+    name: 'favorite_notification_overrides',
+    sql: `
+      -- Per-favorite local overrides for notification scheduling. All fields are
+      -- nullable; NULL means "inherit the global default from sync_state". This is
+      -- a device-local concern (no sync), so no dirty/outbox plumbing.
+      CREATE TABLE IF NOT EXISTS favorite_notification_overrides (
+        favorite_id TEXT PRIMARY KEY,
+        enabled     INTEGER,
+        hour        INTEGER,
+        minute      INTEGER,
+        lead_days   INTEGER,
+        updated_at  TEXT NOT NULL
+      );
+    `,
+  },
 ];
 
 export async function runMigrations(db: SQLiteDatabase): Promise<void> {

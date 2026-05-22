@@ -7,6 +7,7 @@ import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'rea
 import { theme } from '@/lib/ui/theme';
 
 import { FavoriteForm } from '../components/FavoriteForm';
+import { NotificationOverrideSection } from '../components/NotificationOverrideSection';
 import * as repo from '../db/favorites.repo';
 import type { Favorite } from '../db/favorites.repo';
 
@@ -98,6 +99,7 @@ export function EditFavoriteScreen() {
           relationship: favorite.relationship,
           notes: favorite.notes,
         }}
+        extraSection={<NotificationOverrideSection favoriteId={favorite.id} />}
         onSubmit={async (input) => {
           try {
             await repo.update(favorite.id, input);

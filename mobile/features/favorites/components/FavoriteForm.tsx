@@ -42,6 +42,8 @@ interface Props {
   eyebrow?: string;
   /** Title rendered at the top of the form. */
   title?: string;
+  /** Optional extra content rendered below Notes (e.g. per-favorite notification overrides). */
+  extraSection?: React.ReactNode;
   onSubmit: (input: FavoriteInput) => Promise<void> | void;
 }
 
@@ -105,6 +107,7 @@ export function FavoriteForm({
   saveLabel,
   eyebrow,
   title,
+  extraSection,
   onSubmit,
 }: Props) {
   const [displayName, setDisplayName] = useState(initial?.displayName ?? '');
@@ -232,6 +235,8 @@ export function FavoriteForm({
             multiline
             maxLength={500}
           />
+
+          {extraSection}
 
           <View style={styles.bottomSpacer} />
         </ScrollView>
