@@ -237,6 +237,16 @@ async function main() {
   writeFileSync(outPath, body);
 
   process.stderr.write(`Wrote ${entries.length} entries → ${outPath}\n`);
+
+  // Auto-apply curated post-scrape patches (missing nicknames, spelling, gender
+  // corrections) so a re-scrape doesn't silently regress them. The override
+  // script is idempotent — see apply-overrides.mjs.
+  process.stderr.write('Applying post-scrape overrides…\n');
+  const { spawnSync } = await import('node:child_process');
+  const r = spawnSync(process.execPath, [join(here, 'apply-overrides.mjs')], { stdio: 'inherit' });
+  if (r.status !== 0) {
+    throw new Error(`apply-overrides.mjs exited with status ${r.status}`);
+  }
 }
 
 main().catch((e) => {
