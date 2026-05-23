@@ -19,7 +19,7 @@ export function AddFavoriteScreen() {
   return (
     <FavoriteForm
       eyebrow="ΝΕΟ ΑΓΑΠΗΜΕΝΟ"
-      title="Πες μας ποιον/ποιαν να θυμάμαστε"
+      title="Ποιον αγαπημένο θέλεις να θυμόμαστε;"
       saveLabel="Αποθήκευση"
       initial={
         hasPrefill

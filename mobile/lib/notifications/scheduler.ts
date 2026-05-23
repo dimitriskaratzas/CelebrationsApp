@@ -107,7 +107,7 @@ function buildScheduledItems(
       fireDate.setTime(today.getTime() + 5_000);
     }
 
-    const kindLabel = next.kind === 'nameday' ? 'Γιορτάζει' : 'Γενέθλια έχει';
+    const kindLabel = next.kind === 'nameday' ? 'Γιορτάζει' : 'Έχει γενέθλια';
     const dayLabel = effective.leadDays === 0
       ? 'σήμερα'
       : effective.leadDays === 1

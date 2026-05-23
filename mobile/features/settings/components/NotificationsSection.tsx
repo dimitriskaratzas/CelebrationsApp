@@ -92,8 +92,8 @@ export function NotificationsSection() {
       }
       if (status !== 'granted') {
         Alert.alert(
-          'Άρνηση πρόσβασης',
-          'Δώσε άδεια για ειδοποιήσεις από τις ρυθμίσεις του τηλεφώνου σου για να συνεχίσεις.',
+          'Χρειάζεται άδεια',
+          'Δώσε άδεια για ειδοποιήσεις από τις ρυθμίσεις του τηλεφώνου σου.',
           [
             { text: 'Άκυρο', style: 'cancel' },
             { text: 'Άνοιξε ρυθμίσεις', onPress: () => Linking.openSettings() },
@@ -133,8 +133,8 @@ export function NotificationsSection() {
             prefs.enabled
               ? denied
                 ? 'Χρειάζεται άδεια από τις ρυθμίσεις'
-                : 'Ενεργό'
-              : 'Ανενεργό'
+                : 'Ανοιχτές'
+              : 'Κλειστές'
           }
           trailing={
             <Switch
@@ -170,7 +170,7 @@ export function NotificationsSection() {
             <Divider />
             <PressableRow
               icon="hourglass-outline"
-              title="Χρόνος πριν"
+              title="Πόσο νωρίτερα"
               value={leadLabel(prefs.leadDays)}
               onPress={() => setLeadOpen(true)}
             />

@@ -50,7 +50,7 @@ export function RelationshipPicker({ visible, value, onSelect, onClose }: Props)
           <View style={styles.header}>
             <View style={styles.headerText}>
               <Text style={styles.eyebrow}>ΣΧΕΣΗ</Text>
-              <Text style={styles.title}>Τι σχέση έχετε;</Text>
+              <Text style={styles.title}>Τι σχέση έχεις;</Text>
             </View>
             <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
               <Ionicons name="close" size={20} color={theme.muted} />

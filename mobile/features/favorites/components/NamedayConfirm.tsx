@@ -21,7 +21,7 @@ function celebrationDateLabel(entry: NamedayEntry): string {
   }
   return entry.celebration.offset === 0
     ? 'Πάσχα'
-    : `Πάσχα +${entry.celebration.offset}μ`;
+    : `Πάσχα + ${entry.celebration.offset} ${entry.celebration.offset === 1 ? 'μέρα' : 'μέρες'}`;
 }
 
 interface CardProps {
@@ -89,7 +89,7 @@ export function NamedayConfirm({ match, selectedKey, onChange }: Props) {
           <View style={styles.iconWrap}>
             <Ionicons name="close-circle-outline" size={18} color={theme.muted} />
           </View>
-          <Text style={styles.headText}>Δεν θα γιορτάζει.</Text>
+          <Text style={styles.headText}>Χωρίς γιορτή</Text>
         </View>
         <Pressable onPress={() => onChange(null)} hitSlop={6} style={({ pressed }) => pressed && styles.pressed}>
           <Text style={styles.actionLink}>Επανέλεγχος</Text>

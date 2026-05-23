@@ -152,7 +152,7 @@ function Hero({ saintsToday }: HeroProps) {
         <>
           <Text style={styles.heroSaint}>Ήσυχη μέρα.</Text>
           <Text style={styles.heroQuietSub}>
-            Καμία γιορτή στον κατάλογό μας σήμερα. Δες παρακάτω τις επόμενες.
+            Καμία γιορτή σήμερα. Δες ποιοι γιορτάζουν τις επόμενες μέρες.
           </Text>
         </>
       )}
@@ -221,7 +221,7 @@ function RecentRow({ item, today, onPress, onSend }: RecentRowProps) {
         hitSlop={8}
         style={({ pressed }) => [styles.sendPillLate, pressed && styles.sendPillPressed]}
       >
-        <Text style={styles.sendPillLateText}>Καθυστερημένα →</Text>
+        <Text style={styles.sendPillLateText}>Ευχήσου →</Text>
       </Pressable>
     </Pressable>
   );
@@ -412,7 +412,7 @@ export function TodayScreenAegean() {
         {recent.length > 0 ? (
           <>
             <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionHeader}>Πρόσφατες</Text>
+              <Text style={styles.sectionHeader}>Πρόσφατες γιορτές</Text>
               <View style={styles.wave} />
             </View>
             <View style={styles.favList}>
@@ -433,7 +433,7 @@ export function TodayScreenAegean() {
         {upcoming.length > 0 ? (
           <>
             <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionHeader}>Επόμενες</Text>
+              <Text style={styles.sectionHeader}>Επόμενες γιορτές</Text>
               <View style={styles.wave} />
             </View>
             <View style={styles.upcomingList}>
