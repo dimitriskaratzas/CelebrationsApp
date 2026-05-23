@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { upcomingCatalogDays, type CatalogDay } from '@/features/today/lib/upcomingCatalog';
+import { isoDateKey, upcomingCatalogDays, type CatalogDay } from '@/features/today/lib/upcomingCatalog';
 import { spacing, theme } from '@/lib/ui/theme';
 
 import { CatalogDaySheet } from './CatalogDaySheet';
@@ -46,7 +46,7 @@ export function UpcomingCatalogCarousel({ today, days = 14 }: Props) {
         decelerationRate="fast"
       >
         {items.map((day) => (
-          <DayCard key={day.date.toISOString()} day={day} onPress={() => setOpenDay(day)} />
+          <DayCard key={isoDateKey(day.date)} day={day} onPress={() => setOpenDay(day)} />
         ))}
       </ScrollView>
 

@@ -119,8 +119,21 @@ export function FavoriteForm({
     if (initial?.namedayKey === '') return NO_NAMEDAY;
     return initial?.namedayKey ?? null;
   });
+  // When the form starts with a non-empty namedayKey (catalog-prefill from the
+  // upcoming carousel, or any existing favorite being edited), keep that key
+  // sticky across name edits — wiping it on every keystroke meant users who
+  // personalized the prefilled name ("Γιωργάκης", "ο μπαμπάς") lost the
+  // intended nameday. Sticky only stays true until the user explicitly picks
+  // a different key via NamedayConfirm / NameAutocomplete.
+  const [keySticky, setKeySticky] = useState<boolean>(
+    Boolean(initial?.namedayKey && initial.namedayKey !== ''),
+  );
   const [pickerOpen, setPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  // True when the user has typed a partial/invalid date into BirthdayInput.
+  // We block Save while this is set — otherwise the discarded birthday is
+  // silently dropped and the user thinks it was saved.
+  const [birthDateError, setBirthDateError] = useState(false);
 
   const match = useNamedayMatch(displayName);
   const namedayResolved = namedayKey !== null || match.kind === 'matched';
@@ -134,6 +147,7 @@ export function FavoriteForm({
   const canSave =
     displayName.trim().length > 0 &&
     !saving &&
+    !birthDateError &&
     (namedayResolved || birthDate !== null);
 
   const onSave = async () => {
@@ -184,7 +198,11 @@ export function FavoriteForm({
             value={displayName}
             onChangeText={(t) => {
               setDisplayName(t);
-              setNamedayKey(null);
+              // Only auto-clear the previously-resolved nameday when the user
+              // has no sticky key. Sticky means the form started prefilled
+              // (carousel deep-link or existing favorite); their typing edits
+              // the display name without throwing away the intended celebration.
+              if (!keySticky) setNamedayKey(null);
             }}
             placeholder="π.χ. Πατέρας, Γιώργος…"
             maxLength={80}
@@ -195,15 +213,27 @@ export function FavoriteForm({
             onPick={(entry) => {
               setDisplayName(entry.primary_form);
               setNamedayKey(entry.nameday_key);
+              setKeySticky(true);
             }}
           />
           <View style={styles.confirmWrap}>
-            <NamedayConfirm match={match} selectedKey={namedayKey} onChange={setNamedayKey} />
+            <NamedayConfirm
+              match={match}
+              selectedKey={namedayKey}
+              onChange={(key) => {
+                setNamedayKey(key);
+                setKeySticky(true);
+              }}
+            />
           </View>
 
           {/* Birthday section */}
           <SectionLabel optional>Γενέθλια</SectionLabel>
-          <BirthdayInput value={birthDate} onChange={setBirthDate} />
+          <BirthdayInput
+            value={birthDate}
+            onChange={setBirthDate}
+            onErrorChange={setBirthDateError}
+          />
 
           {/* Relationship section */}
           <SectionLabel optional>Σχέση</SectionLabel>

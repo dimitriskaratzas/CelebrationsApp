@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Alert,
   AppState,
   type AppStateStatus,
   Pressable,
@@ -68,6 +69,33 @@ function heroTitleSize(text: string): { fontSize: number; lineHeight: number } {
 }
 
 const MAX_EXTRA_SAINTS = 3;
+
+// Subtitle for today's favorites row, accounting for the rare same-day
+// nameday+birthday collision (e.g. Μαρία born on Δεκαπενταύγουστο).
+function todaySubtitle(item: TodayItem): string {
+  if (item.also) {
+    const both = item.kind === 'birthday'
+      ? 'Γενέθλια + Ονομαστική'
+      : 'Ονομαστική + Γενέθλια';
+    if (item.ageThisYear !== undefined && item.ageThisYear > 0) {
+      return `${both} • κλείνει ${item.ageThisYear}`;
+    }
+    return both;
+  }
+  if (item.kind === 'nameday') return item.saint ?? 'Ονομαστική';
+  return item.ageThisYear !== undefined && item.ageThisYear > 0
+    ? `Γενέθλια • κλείνει ${item.ageThisYear}`
+    : 'Γενέθλια';
+}
+
+function kindLabel(item: TodayItem): string {
+  if (item.also) {
+    return item.kind === 'birthday'
+      ? 'Γενέθλια + Ονομαστική'
+      : 'Ονομαστική + Γενέθλια';
+  }
+  return item.kind === 'nameday' ? 'Ονομαστική' : 'Γενέθλια';
+}
 
 // ─── subcomponents ────────────────────────────────────────────────────────────
 
@@ -139,16 +167,12 @@ interface FavoriteTodayRowProps {
 }
 
 function FavoriteTodayRow({ item, onPress, onSend }: FavoriteTodayRowProps) {
-  const subtitle =
-    item.kind === 'nameday'
-      ? item.saint ?? 'Ονομαστική'
-      : item.ageThisYear !== undefined && item.ageThisYear > 0
-        ? `Γενέθλια • κλείνει ${item.ageThisYear}`
-        : 'Γενέθλια';
+  const subtitle = todaySubtitle(item);
+  const ringed = item.kind === 'nameday' || item.also === 'nameday';
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.favRow, pressed && styles.favRowPressed]}>
-      <Avatar name={item.favorite.displayName} size={44} ringed={item.kind === 'nameday'} />
+      <Avatar name={item.favorite.displayName} size={44} ringed={ringed} />
       <View style={styles.favText}>
         <Text style={styles.favName} numberOfLines={1}>
           {item.favorite.displayName}
@@ -179,7 +203,7 @@ function RecentRow({ item, today, onPress, onSend }: RecentRowProps) {
   const delta = differenceInCalendarDays(startOfDay(today), startOfDay(item.date));
   const daysAgoLabel =
     delta === 1 ? 'Χθες' : delta === 2 ? 'Προχθές' : `Πριν ${delta} μέρες`;
-  const typeLabel = item.kind === 'nameday' ? 'Ονομαστική' : 'Γενέθλια';
+  const typeLabel = kindLabel(item);
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.favRow, pressed && styles.favRowPressed]}>
@@ -213,7 +237,7 @@ function UpcomingRow({ item, today, onPress }: UpcomingRowProps) {
   const isToday = differenceInCalendarDays(startOfDay(item.date), startOfDay(today)) === 0;
   const monthLabel = format(item.date, 'MMM', { locale: el }).toUpperCase();
   const dayLabel = format(item.date, 'd', { locale: el });
-  const typeLabel = item.kind === 'nameday' ? 'Ονομαστική' : 'Γενέθλια';
+  const typeLabel = kindLabel(item);
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.upcomingRow, pressed && styles.pressedSubtle]}>
@@ -297,7 +321,20 @@ export function TodayScreenAegean() {
   );
   const dateLabel = useMemo(() => format(today, 'd MMMM', { locale: el }), [today]);
 
-  const openNew = () => router.push('/favorite/new');
+  // Pre-emptive cap check so the user doesn't fill out the entire form just to
+  // be told they're at the limit on Save. AddFavoriteScreen still enforces the
+  // same cap on submit as a backstop. Keep the two limits in sync (10).
+  const FREE_TIER_CAP = 10;
+  const openNew = () => {
+    if (favorites.length >= FREE_TIER_CAP) {
+      Alert.alert(
+        'Όριο 10 αγαπημένων',
+        'Έχεις φτάσει το όριο των 10 αγαπημένων στη δωρεάν έκδοση.',
+      );
+      return;
+    }
+    router.push('/favorite/new');
+  };
   const openFavorite = (id: string) =>
     router.push({ pathname: '/favorite/[id]', params: { id } });
 

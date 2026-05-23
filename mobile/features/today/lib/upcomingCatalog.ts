@@ -38,8 +38,10 @@ export function upcomingCatalogDays(today: Date, days: number): CatalogDay[] {
   return out;
 }
 
-function isoDateKey(d: Date): string {
-  // Local-date-stable key (YYYY-MM-DD). Avoids TZ shifts from toISOString().
+// Local-date-stable key (YYYY-MM-DD). Avoids TZ shifts from `Date.toISOString()`
+// (which serializes to UTC and can land on the previous/next calendar day
+// for users in non-zero offsets, breaking React list `key` stability).
+export function isoDateKey(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');

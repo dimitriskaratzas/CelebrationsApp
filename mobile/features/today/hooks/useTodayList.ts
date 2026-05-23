@@ -25,6 +25,10 @@ export interface TodayItem {
   primaryForm?: string;
   saint?: string;
   ageThisYear?: number;
+  /** Set when the same favorite has both a nameday and a birthday on this date.
+   *  Carries the *other* kind; `kind` always reflects the visually-primary one
+   *  (birthday wins because it carries age info). */
+  also?: CelebrationKind;
 }
 
 export interface SaintOfDay {
@@ -45,6 +49,26 @@ const UPCOMING_DAYS = 14;
 const UPCOMING_CAP = 12;
 const RECENT_DAYS = 7;
 const RECENT_CAP = 8;
+
+// If a favorite has BOTH a nameday and a birthday on the exact same date (rare
+// but real — e.g. Μαρία born on Δεκαπενταύγουστο), we'd otherwise render two
+// rows with the same avatar. Collapse them into one, keeping birthday as the
+// visually-primary kind (it carries ageThisYear), and marking the other on `also`.
+function collapseSameDayPerFavorite(items: TodayItem[]): TodayItem[] {
+  const byKey = new Map<string, TodayItem>();
+  for (const item of items) {
+    const key = `${item.favorite.id}:${item.date.getTime()}`;
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, item);
+      continue;
+    }
+    const primary = item.kind === 'birthday' ? item : existing;
+    const secondary = item.kind === 'birthday' ? existing : item;
+    byKey.set(key, { ...primary, also: secondary.kind });
+  }
+  return Array.from(byKey.values());
+}
 
 export function useTodayList(today: Date): UseTodayList {
   const { favorites, loading } = useFavorites();
@@ -147,9 +171,9 @@ export function useTodayList(today: Date): UseTodayList {
 
     return {
       loading: loading && !ready,
-      today: todayList,
-      upcoming: upcomingList.slice(0, UPCOMING_CAP),
-      recent: recentList.slice(0, RECENT_CAP),
+      today: collapseSameDayPerFavorite(todayList),
+      upcoming: collapseSameDayPerFavorite(upcomingList).slice(0, UPCOMING_CAP),
+      recent: collapseSameDayPerFavorite(recentList).slice(0, RECENT_CAP),
       saintsToday,
     };
   }, [favorites, loading, ready, today]);
