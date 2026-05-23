@@ -6,6 +6,9 @@ import { theme } from '@/lib/ui/theme';
 interface Props {
   value: string | null;
   onChange: (value: string | null) => void;
+  /** Fires whenever the input is in a "user is typing but the date is not yet valid"
+   *  state — used by parent forms to block Save until the user fixes or clears it. */
+  onErrorChange?: (hasError: boolean) => void;
 }
 
 const YEAR_UNKNOWN = '0001';
@@ -109,7 +112,7 @@ function Cell({
   );
 }
 
-export function BirthdayInput({ value, onChange }: Props) {
+export function BirthdayInput({ value, onChange, onErrorChange }: Props) {
   const initial = parse(value);
   const [day, setDay] = useState(initial.day);
   const [month, setMonth] = useState(initial.month);
@@ -124,6 +127,11 @@ export function BirthdayInput({ value, onChange }: Props) {
     onChangeRef.current = onChange;
   }, [onChange]);
 
+  const onErrorChangeRef = useRef(onErrorChange);
+  useEffect(() => {
+    onErrorChangeRef.current = onErrorChange;
+  }, [onErrorChange]);
+
   useEffect(() => {
     onChangeRef.current(format(day, month, year, unknownYear));
   }, [day, month, year, unknownYear]);
@@ -131,6 +139,10 @@ export function BirthdayInput({ value, onChange }: Props) {
   const hasInput = Boolean(day || month || year);
   const isValid = format(day, month, year, unknownYear) !== null;
   const showError = hasInput && !isValid;
+
+  useEffect(() => {
+    onErrorChangeRef.current?.(showError);
+  }, [showError]);
 
   const focusMonth = useCallback(() => monthRef.current?.focus(), []);
   const focusYear = useCallback(() => yearRef.current?.focus(), []);
@@ -195,12 +207,18 @@ export function BirthdayInput({ value, onChange }: Props) {
         onPress={() => setUnknownYear((v) => !v)}
         style={({ pressed }) => [styles.toggle, pressed && styles.togglePressed]}
       >
-        <Switch
-          value={unknownYear}
-          onValueChange={setUnknownYear}
-          trackColor={{ false: theme.surface2, true: theme.accent }}
-          thumbColor="#fff"
-        />
+        {/* `pointerEvents=none` keeps the Switch purely visual — taps land on
+            the surrounding Pressable, which is the single source of truth.
+            Without this, a direct tap on the Switch fires both the Switch's
+            onValueChange *and* bubbles up to the Pressable's onPress, toggling
+            twice and netting zero change. */}
+        <View pointerEvents="none">
+          <Switch
+            value={unknownYear}
+            trackColor={{ false: theme.surface2, true: theme.accent }}
+            thumbColor="#fff"
+          />
+        </View>
         <Text style={styles.toggleLabel}>Δεν ξέρω το έτος γέννησης</Text>
       </Pressable>
     </View>
