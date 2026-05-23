@@ -117,13 +117,13 @@ export function NotificationOverrideSection({ favoriteId }: Props) {
       <View style={styles.groupBody}>
         <Row
           icon="notifications-off-outline"
-          title="Σίγαση για αυτό το αγαπημένο"
+          title="Σίγαση ειδοποιήσεων"
           subtitle={
             globalOff
               ? 'Οι ειδοποιήσεις είναι κλειστές από τις γενικές ρυθμίσεις'
               : silenced
                 ? 'Δεν θα λάβεις ειδοποίηση'
-                : 'Ειδοποίηση όπως η προεπιλογή'
+                : 'Ως συνήθως'
           }
           trailing={
             <Switch
@@ -148,7 +148,7 @@ export function NotificationOverrideSection({ favoriteId }: Props) {
         <Divider />
         <PressableRow
           icon="hourglass-outline"
-          title="Χρόνος πριν"
+          title="Πόσο νωρίτερα"
           value={leadValue}
           custom={leadIsCustom}
           disabled={silenced || globalOff}

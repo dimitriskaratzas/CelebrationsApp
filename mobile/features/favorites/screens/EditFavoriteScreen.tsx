@@ -30,7 +30,7 @@ export function EditFavoriteScreen() {
     if (!favorite) return;
     Alert.alert(
       'Διαγραφή αγαπημένου',
-      `Διαγραφή του "${favorite.displayName}";`,
+      `Να διαγραφεί «${favorite.displayName}»;`,
       [
         { text: 'Άκυρο', style: 'cancel' },
         {
