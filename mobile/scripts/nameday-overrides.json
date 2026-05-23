@@ -1,0 +1,47 @@
+{
+  "_description": "Post-scrape patches applied on top of eortologio.gr data. The scraper output is incomplete (missing common nicknames) and contains a few spelling and gender-agreement errors that survive in modern Greek. This file is the single source of truth for those corrections — re-running the scraper without re-applying these patches will regress the catalog.",
+
+  "_keys_used": [
+    "vasilis (Βασίλειος 1/1)",
+    "dimitra (Δήμητρα 26/10)",
+    "dimitris_10_26 (Δημήτριος 26/10)",
+    "ioannis_o_rossos (Ιωάννης ο Ρώσος 27/5)",
+    "anastasios_pascha (Αναστάσης/Αναστασία, easter+0)",
+    "ioannis (Ιωάννης 7/1) — for the spawned Ιωάννα sibling"
+  ],
+
+  "addForms": {
+    "dimitris_10_26":   ["τακησ"],
+    "dimitra":          ["ντινα"],
+    "vasilis":          ["μπιλι"],
+    "ioannis_o_rossos": ["ιωαννησ ο ρωσοσ"]
+  },
+
+  "replaceForms": {
+    "vasilis": { "μπιλλησ": "μπιλησ" }
+  },
+
+  "fixPrimaryForm": {
+    "ioannis_o_rossos": "Ιωάννης ο Ρώσος"
+  },
+
+  "fixSaint": {
+    "ioannis_o_rossos":  "Άγιος Ιωάννης ο Ρώσος",
+    "anastasios_pascha": "Αγία Ανάσταση του Κυρίου"
+  },
+
+  "remove": [
+    "to_agio_pascha",
+    "pascha_katholikon"
+  ],
+
+  "addEntries": [
+    {
+      "nameday_key": "ioanna_01_07",
+      "primary_form": "Ιωάννα",
+      "all_forms_normalized": ["ιωαννα", "ιβανα", "βανα", "βαννα", "γιωαννα"],
+      "celebration": { "type": "fixed", "month": 1, "day": 7 },
+      "saint": "Αγία Ιωάννα"
+    }
+  ]
+}
